@@ -1,5 +1,4 @@
-// src/user/user.service.js
-const User = require("../user/user.model"); // Import the Mongoose User model
+const User = require("../user/user.model");
 
 class UserService {
 	static async findUserById(id) {

@@ -23,6 +23,7 @@ const UserSchema = new mongoose.Schema(
 		profilePhoto: String,
 		email: { type: String, unique: true, required: true },
 		password: { type: String },
+		googleId: { type: String },
 		location: {
 			country: { type: String },
 			state: { type: String },

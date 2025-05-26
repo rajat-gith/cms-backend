@@ -58,19 +58,20 @@ class AuthService {
 				sub: googleId,
 				email,
 				name = "User",
-				password = "kdvmdlvnmdfvnldfknvlkn",
 				picture: profilePicture,
 			} = payload;
 
-			// 4. Find or create user
 			let user = await UserService.findUserByGoogleId(googleId);
+			//here the logic is it will check the user incoming has already created account or not.
 
 			if (!user) {
-				// Check if email exists
 				const existingUser = await UserService.findUserByEmail(email);
 
 				if (existingUser) {
-					// Link Google account to existing user
+					// Allow linking Google account only if:
+					// 1. The user does not have a googleId yet (first time linking), OR
+					// 2. The existing googleId matches the current one (same account).
+					// Otherwise, block linking to prevent different Google accounts from using the same email.
 					if (
 						existingUser.googleId &&
 						existingUser.googleId !== googleId
