@@ -3,7 +3,6 @@ const config = require("../../config");
 const { authSchema } = require("./auth.validation");
 
 const validateAuthenticationToken = (req, res, next) => {
-	console.log(req.headers["authorization"]);
 	const authHeader = req.headers["authorization"];
 	const token = authHeader && authHeader.split(" ")[1];
 
@@ -12,7 +11,7 @@ const validateAuthenticationToken = (req, res, next) => {
 			.status(401)
 			.json({ message: "Authentication token required." });
 	}
-
+	
 	jwt.verify(token, config.jwt.secret, (err, user) => {
 		if (err) {
 			console.error("JWT Verification Error:", err.message);

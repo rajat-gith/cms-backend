@@ -4,6 +4,7 @@ const config = require("./config");
 
 const authRoutes = require("./modules/auth/auth.routes");
 const userRoutes = require("./modules/user/user.routes");
+const educationRoutes = require("./modules/education/education.routes");
 
 const app = express();
 
@@ -11,8 +12,9 @@ app.use(express.json());
 app.use(cors({ origin: config.frontendUrl }));
 
 // Routes
-app.use("/auth", authRoutes); // All authentication related routes
-app.use("/user", userRoutes); // All user profile related routes (protected)
+app.use("/auth", authRoutes);
+app.use("/user", userRoutes);
+app.use("/education", educationRoutes);
 
 // Basic health check
 app.get("/", (req, res) => {
