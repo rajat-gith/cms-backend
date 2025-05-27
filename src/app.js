@@ -7,6 +7,7 @@ const userRoutes = require("./modules/user/user.routes");
 const educationRoutes = require("./modules/education/education.routes");
 const projectRoutes = require("./modules/project/project.routes");
 const experienceRoutes = require("./modules/experience/experience.routes");
+const blogRoutes = require("./modules/blog/blog.routes");
 
 const app = express();
 
@@ -19,6 +20,7 @@ app.use("/user", userRoutes);
 app.use("/education", educationRoutes);
 app.use("/project", projectRoutes);
 app.use("/experience", experienceRoutes);
+app.use("/blog", blogRoutes);
 
 // Basic health check
 app.get("/", (req, res) => {
