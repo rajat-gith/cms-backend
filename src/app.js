@@ -9,9 +9,9 @@ const projectRoutes = require("./modules/project/project.routes");
 const experienceRoutes = require("./modules/experience/experience.routes");
 const blogRoutes = require("./modules/blog/blog.routes");
 const extraRoutes = require("./modules/extra/extra.routes");
-const certificationRoutes = require("./modules/certification");
-const socialProfileRoutes = require("./modules/socialProfile");
-const skillRoutes = require("./modules/skill");
+const certificationRoutes = require("./modules/certification/certification.routes");
+const socialProfileRoutes = require("./modules/socialProfile/socialProfile.routes");
+const skillRoutes = require("./modules/skill/skill.routes");
 
 const app = express();
 
