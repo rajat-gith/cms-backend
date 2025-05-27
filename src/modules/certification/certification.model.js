@@ -9,12 +9,20 @@ const certificationSchema = new mongoose.Schema(
 		isExpired: { type: Boolean, default: false },
 		credentialId: { type: String },
 		credentialURL: { type: String },
-		category: { type: String }, // e.g. "Cloud", "Security", "Data", etc.
+		category: { type: String },
 		skills: [String],
 		userId: {
 			type: mongoose.Schema.Types.ObjectId,
 			ref: "User",
 			required: true,
+		},
+		createdAt: {
+			type: Date,
+			default: Date.now,
+		},
+		updatedAt: {
+			type: Date,
+			default: Date.now,
 		},
 	},
 	{ timestamps: true }

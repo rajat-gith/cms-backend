@@ -8,19 +8,26 @@ const educationRoutes = require("./modules/education/education.routes");
 const projectRoutes = require("./modules/project/project.routes");
 const experienceRoutes = require("./modules/experience/experience.routes");
 const blogRoutes = require("./modules/blog/blog.routes");
+const extraRoutes = require("./modules/extra/extra.routes");
+const certificationRoutes = require("./modules/certification");
+const socialProfileRoutes = require("./modules/socialProfile");
+const skillRoutes = require("./modules/skill");
 
 const app = express();
 
 app.use(express.json());
 app.use(cors({ origin: config.frontendUrl }));
 
-// Routes
 app.use("/auth", authRoutes);
 app.use("/user", userRoutes);
 app.use("/education", educationRoutes);
 app.use("/project", projectRoutes);
 app.use("/experience", experienceRoutes);
 app.use("/blog", blogRoutes);
+app.use("/extra", extraRoutes);
+app.use("/certification", certificationRoutes);
+app.use("/socialProfile", socialProfileRoutes);
+app.use("/skill", skillRoutes);
 
 // Basic health check
 app.get("/", (req, res) => {
