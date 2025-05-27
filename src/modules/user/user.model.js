@@ -30,7 +30,6 @@ const UserSchema = new mongoose.Schema(
 			city: { type: String },
 		},
 		phone: String,
-		skills: [String],
 		createdAt: {
 			type: Date,
 			default: Date.now,

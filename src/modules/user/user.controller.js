@@ -39,7 +39,6 @@ class UserController {
 				"profilePhoto",
 				"location",
 				"phone",
-				"skills",
 			];
 
 			const updateData = {};
