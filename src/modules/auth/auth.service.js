@@ -11,12 +11,17 @@ const oAuth2Client = new OAuth2Client(
 );
 
 class AuthService {
-	static async registerUser(email, name, password) {
+	static async registerUser(email, name, username, password) {
 		const existingUser = await UserService.findUserByEmail(email);
 		if (existingUser) {
 			throw new Error("User with this email already exists.");
 		}
-		const user = await UserService.createUser({ email, name, password });
+		const user = await UserService.createUser({
+			email,
+			name,
+			username,
+			password,
+		});
 		return this.generateAuthToken(user);
 	}
 
@@ -24,7 +29,7 @@ class AuthService {
 		const user = await UserService.findUserByEmail(email);
 		console.log(user, !user.password);
 		if (!user || !user.password) {
-			throw new Error("Invalid credentials or user not found.");
+			throw new Error("Invalid credentials");
 		}
 		const isMatch = await bcrypt.compare(password, user.password);
 		if (!isMatch) {

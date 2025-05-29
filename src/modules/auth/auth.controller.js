@@ -10,9 +10,11 @@ class AuthController {
 		}
 		try {
 			const name = email.split("@")[0];
+			const username = email.split("@")[0];
 			const { user, token } = await AuthService.registerUser(
 				email,
 				name,
+				username,
 				password
 			);
 			res.status(201).json({
@@ -45,7 +47,7 @@ class AuthController {
 
 	static async googleAuthCallback(req, res) {
 		try {
-			const { code } = req.query;
+			const { code } = req.body;
 
 			if (!code) {
 				return res.status(400).json({

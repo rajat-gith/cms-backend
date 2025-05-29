@@ -11,7 +11,7 @@ class UserController {
 			}
 			res.status(200).json({
 				message: "User profile retrieved",
-				profile: user,
+				data: user,
 			});
 		} catch (error) {
 			res.status(500).json({
@@ -52,7 +52,7 @@ class UserController {
 
 			res.status(200).json({
 				message: "Profile updated successfully",
-				profile: updatedUser,
+				data: updatedUser,
 			});
 		} catch (error) {
 			res.status(500).json({
@@ -110,7 +110,7 @@ class UserController {
 			if (currentUser.googleId && currentUser.googleId === googleId) {
 				return res.status(200).json({
 					message: "Google account already linked.",
-					profile: currentUser,
+					data: currentUser,
 				});
 			}
 
@@ -120,7 +120,7 @@ class UserController {
 			});
 			res.status(200).json({
 				message: "Google account linked successfully!",
-				profile: updatedUser,
+				data: updatedUser,
 			});
 		} catch (error) {
 			console.error("Error linking Google account:", error);
@@ -164,7 +164,7 @@ class UserController {
 			});
 			res.status(200).json({
 				message: "Google account unlinked successfully!",
-				profile: updatedUser,
+				data: updatedUser,
 			});
 		} catch (error) {
 			console.error("Error unlinking Google account:", error);

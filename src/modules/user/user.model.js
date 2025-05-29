@@ -18,6 +18,8 @@ const UserSchema = new mongoose.Schema(
 				url: { type: String, required: true },
 			},
 		],
+		apiKey: String,
+		apiSecret: String,
 		isProfileComplete: { type: Boolean, default: false },
 		about: String,
 		profilePhoto: String,
