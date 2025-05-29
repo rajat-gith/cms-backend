@@ -1,3 +1,4 @@
+const bcrypt = require("bcryptjs");
 const User = require("../user/user.model");
 
 class UserService {
@@ -18,6 +19,23 @@ class UserService {
 		await user.save();
 		const { password, ...userWithoutPassword } = user.toObject();
 		return userWithoutPassword;
+	}
+
+	static async findUserByAPIKey(apiCreds) {
+		const { apiKey, apiSecret } = apiCreds[0];
+
+		const user = await User.findOne({
+			"apiCredentials.apiKey": apiKey,
+		}).select("-password");
+		if (!user) return null;
+
+		const credential = user.apiCredentials.find((c) => c.apiKey === apiKey);
+		console.log(typeof apiSecret, typeof credential.apiSecret);
+		if (!credential) return null;
+
+		const isValidSecret = Boolean(apiSecret === credential.apiSecret);
+		if (!isValidSecret) return null;
+		return user;
 	}
 
 	static async updateUser(user, updates) {

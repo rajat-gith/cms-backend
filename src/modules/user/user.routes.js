@@ -1,11 +1,18 @@
 const express = require("express");
 const UserController = require("./user.controller");
-const { validateAuthenticationToken } = require("../auth/auth.middleware");
+const {
+	validateAuthenticationToken,
+	validateAPICreds,
+} = require("../auth/auth.middleware");
 
 const router = express.Router();
 
-router.get("/profile", validateAuthenticationToken, UserController.getProfile);
-router.put("/profile", validateAuthenticationToken, UserController.updateProfile);
+router.get("/profile", validateAPICreds, UserController.getProfile);
+router.put(
+	"/profile",
+	validateAuthenticationToken,
+	UserController.updateProfile
+);
 router.post(
 	"/link-google",
 	validateAuthenticationToken,

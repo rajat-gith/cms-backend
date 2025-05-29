@@ -5,7 +5,7 @@ const config = require("../../config");
 class UserController {
 	static async getProfile(req, res) {
 		try {
-			const user = await UserService.findUserById(req.user.userId);
+			const user = await UserService.findUserById(req.user._id);
 			if (!user) {
 				return res.status(404).json({ message: "User not found." });
 			}
@@ -27,6 +27,7 @@ class UserController {
 			if (!user) {
 				return res.status(404).json({ message: "User not found." });
 			}
+
 			const allowedUpdates = [
 				"first_name",
 				"middle_name",
@@ -39,12 +40,50 @@ class UserController {
 				"profilePhoto",
 				"location",
 				"phone",
+				"apiCredentials",
 			];
 
 			const updateData = {};
+
 			for (const key of allowedUpdates) {
 				if (req.body.hasOwnProperty(key)) {
-					updateData[key] = req.body[key];
+					if (key === "apiCredentials") {
+						const apiCreds = req.body[key];
+
+						if (!Array.isArray(apiCreds)) {
+							return res
+								.status(400)
+								.json({
+									message: "apiCredentials must be an array.",
+								});
+						}
+
+						// Basic validation – ensure each item has apiKey and a hashed apiSecret
+						for (const cred of apiCreds) {
+							if (!cred.apiKey || !cred.apiSecret) {
+								return res
+									.status(400)
+									.json({
+										message:
+											"Each API credential must include both apiKey and apiSecret.",
+									});
+							}
+
+							// Optional: Validate hash format (starts with $2b$ or $2a$)
+							if (!cred.apiSecret.startsWith("$2")) {
+								return res
+									.status(400)
+									.json({
+										message:
+											"apiSecret must be a bcrypt hash.",
+									});
+							}
+						}
+
+						updateData[key] = apiCreds; // No re-hashing needed
+					} else {
+						updateData[key] = req.body[key];
+					}
 				}
 			}
 
