@@ -5,7 +5,7 @@ const config = require("../../config");
 class UserController {
 	static async getProfile(req, res) {
 		try {
-			const user = await UserService.findUserById(req.user._id);
+			const user = await UserService.findUserById(req.user.userId);
 			if (!user) {
 				return res.status(404).json({ message: "User not found." });
 			}

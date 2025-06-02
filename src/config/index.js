@@ -12,5 +12,6 @@ module.exports = {
 		secret: process.env.JWT_SECRET,
 		expiresIn: "1h",
 	},
-	frontendUrl: process.env.FRONTEND_URL || "http://localhost:3000",
+	frontendDevUrl: process.env.FRONTEND_DEV_URL,
+	frontendDeployedUrl: process.env.FRONTEND_DEPLOYED_URL,
 };

@@ -12,4 +12,10 @@ router.put(
 	EducationController.updateEducation
 );
 
+router.delete(
+	"/:id",
+	validateAuthenticationToken,
+	EducationController.deleteEducation
+);
+
 module.exports = router;

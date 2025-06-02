@@ -7,5 +7,5 @@ connectDB();
 
 app.listen(config.port, () => {
 	console.log(`Server running on http://localhost:${config.port}`);
-	console.log(`Frontend URL allowed: ${config.frontendUrl}`);
+	console.log(`Frontend URL allowed: ${config.frontendDeployedUrl}`);
 });

@@ -16,7 +16,23 @@ const skillRoutes = require("./modules/skill/skill.routes");
 const app = express();
 
 app.use(express.json());
-app.use(cors({ origin: config.frontendUrl }));
+
+const allowedOrigins = [config.frontendDevUrl, config.frontendDeployedUrl];
+
+app.use(
+	cors({
+		origin: (origin, callback) => {
+			if (!origin) return callback(null, true);
+			if (allowedOrigins.includes(origin)) {
+				return callback(null, true);
+			} else {
+				console.log(origin);
+				return callback(new Error("Not allowed by CORS"));
+			}
+		},
+		credentials: true,
+	})
+);
 
 app.use("/auth", authRoutes);
 app.use("/user", userRoutes);

@@ -1,4 +1,4 @@
-const Education = require("./education.model")
+const Education = require("./education.model");
 
 class EducationService {
 	static async createEducation(data) {
@@ -14,7 +14,9 @@ class EducationService {
 			new: true,
 		});
 	}
+	static async deleteEducation(certId) {
+		return await Education.findByIdAndDelete(certId);
+	}
 }
-
 
 module.exports = EducationService;

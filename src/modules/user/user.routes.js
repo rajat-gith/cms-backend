@@ -7,7 +7,7 @@ const {
 
 const router = express.Router();
 
-router.get("/profile", validateAPICreds, UserController.getProfile);
+router.get("/profile", validateAuthenticationToken, UserController.getProfile);
 router.put(
 	"/profile",
 	validateAuthenticationToken,

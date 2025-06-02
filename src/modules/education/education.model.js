@@ -9,6 +9,7 @@ const educationSchema = new mongoose.Schema(
 			endDate: { type: Date },
 			isOngoing: { type: Boolean, default: false },
 		},
+		degree: { type: String },
 		skills: {
 			type: [String],
 		},

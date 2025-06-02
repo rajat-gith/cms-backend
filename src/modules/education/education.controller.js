@@ -48,6 +48,17 @@ class EducationController {
 			});
 		}
 	}
+	static async deleteEducation(req, res) {
+		try {
+			await EducationService.deleteEducation(req.params.id);
+			res.json({ message: "Deleted successfully" });
+		} catch (err) {
+			res.status(500).json({
+				message: "Failed to delete certification",
+				error: err.message,
+			});
+		}
+	}
 }
 
 module.exports = EducationController;
