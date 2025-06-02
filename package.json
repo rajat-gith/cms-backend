@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "release":"npm server.js",
+    "build":"npm run build"
   },
   "author": "Rajat Kumar Nayak",
   "license": "ISC",
