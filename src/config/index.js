@@ -12,6 +12,6 @@ module.exports = {
 		secret: process.env.JWT_SECRET,
 		expiresIn: "1h",
 	},
-	frontendDevUrl: process.env.FRONTEND_DEV_URL,
-	frontendDeployedUrl: process.env.FRONTEND_DEPLOYED_URL,
+	frontendDevUrl: process.env.FRONTEND_DEV_URL || "",
+	frontendDeployedUrl: process.env.FRONTEND_DEPLOYED_URL || "",
 };
