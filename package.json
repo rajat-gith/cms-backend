@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon server.js",
-    "release":"npm server.js",
+    "release":"node server.js",
     "build":"npm run build"
   },
   "author": "Rajat Kumar Nayak",
