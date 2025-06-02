@@ -34,7 +34,6 @@ app.use(
 	})
 );
 
-app.options("*", cors());
 
 app.use("/auth", authRoutes);
 app.use("/user", userRoutes);
