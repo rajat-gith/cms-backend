@@ -19,6 +19,10 @@ class BlogService {
 		return await Blog.findById(blogId);
 	}
 
+	static async deleteBlog(blogId) {
+		return await Blog.findByIdAndDelete(blogId);
+	}
+
 	static async getUserName(userId) {
 		const author = await User.findById({ _id: userId });
 		return author.username;

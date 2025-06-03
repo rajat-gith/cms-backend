@@ -12,7 +12,7 @@ const BlogController = {
 				},
 			};
 			const blog = await BlogService.createBlog(data);
-			res.status(201).json({ message: "Blog created" });
+			res.status(201).json({ message: "Blog created", data: blog });
 		} catch (error) {
 			res.status(500).json({ message: "Failed to create blog", error });
 		}
@@ -47,6 +47,18 @@ const BlogController = {
 			res.json(blog);
 		} catch (error) {
 			res.status(500).json({ message: "Failed to fetch blog", error });
+		}
+	},
+
+	async deleteBlog(req, res) {
+		try {
+			await BlogService.deleteBlog(req.params.id);
+			res.json({ message: "Deleted successfully" });
+		} catch (err) {
+			res.status(500).json({
+				message: "Failed to delete certification",
+				error: err.message,
+			});
 		}
 	},
 };

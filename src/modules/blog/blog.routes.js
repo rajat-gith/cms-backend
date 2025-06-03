@@ -8,5 +8,9 @@ router.post("/", validateAuthenticationToken, BlogController.createBlog);
 router.get("/", validateAuthenticationToken, BlogController.getBlogs);
 router.get("/:id", validateAuthenticationToken, BlogController.getBlogById);
 router.put("/:id", validateAuthenticationToken, BlogController.updateBlog);
-
+router.delete(
+	"/:id",
+	validateAuthenticationToken,
+	BlogController.deleteBlog
+);
 module.exports = router;
