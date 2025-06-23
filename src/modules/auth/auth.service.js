@@ -27,7 +27,6 @@ class AuthService {
 
 	static async loginUser(email, password) {
 		const user = await UserService.findUserByEmail(email);
-		console.log(user, !user.password);
 		if (!user || !user.password) {
 			throw new Error("Invalid credentials");
 		}

@@ -30,7 +30,6 @@ class UserService {
 		if (!user) return null;
 
 		const credential = user.apiCredentials.find((c) => c.apiKey === apiKey);
-		console.log(typeof apiSecret, typeof credential.apiSecret);
 		if (!credential) return null;
 
 		const isValidSecret = Boolean(apiSecret === credential.apiSecret);
