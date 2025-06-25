@@ -6,7 +6,7 @@ class SkillService {
 		return await skill.save();
 	}
 
-	static async getSkills(userId) {
+	static async getSkillsByUser(userId) {
 		return await Skill.find({ userId });
 	}
 

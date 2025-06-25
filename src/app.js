@@ -12,6 +12,8 @@ const extraRoutes = require("./modules/extra/extra.routes");
 const certificationRoutes = require("./modules/certification/certification.routes");
 const socialProfileRoutes = require("./modules/socialProfile/socialProfile.routes");
 const skillRoutes = require("./modules/skill/skill.routes");
+const publicRoutes = require("./modules/public/public.routes")
+const apiCredentialRoutes = require("./modules/apiCredential/apiCredential.routes");
 
 const app = express();
 
@@ -33,7 +35,7 @@ app.use(
 	})
 );
 
-
+console.log("here")
 app.use("/auth", authRoutes);
 app.use("/user", userRoutes);
 app.use("/education", educationRoutes);
@@ -44,6 +46,8 @@ app.use("/extra", extraRoutes);
 app.use("/certification", certificationRoutes);
 app.use("/socialProfile", socialProfileRoutes);
 app.use("/skill", skillRoutes);
+app.use("/api-credentials", apiCredentialRoutes);
+app.use("/public", publicRoutes);
 
 // Basic health check
 app.get("/", (req, res) => {

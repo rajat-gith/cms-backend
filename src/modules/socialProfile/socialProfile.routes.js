@@ -4,15 +4,25 @@ const SocialProfileController = require("./socialProfile.controller");
 
 const router = express.Router();
 
-router.get(
-	"/",
-	validateAuthenticationToken,
-	SocialProfileController.getProfile
-);
 router.post(
-	"/",
-	validateAuthenticationToken,
-	SocialProfileController.upsertProfile
+    "/",
+    validateAuthenticationToken,
+    SocialProfileController.createProfile
+);
+router.put(
+    "/:id",
+    validateAuthenticationToken,
+    SocialProfileController.updateProfile
+);
+router.get(
+    "/",
+    validateAuthenticationToken,
+    SocialProfileController.getProfile
+);
+router.delete(
+    "/:id",
+    validateAuthenticationToken,
+    SocialProfileController.deleteProfile
 );
 
 module.exports = router;

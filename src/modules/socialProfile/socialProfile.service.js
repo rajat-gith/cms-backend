@@ -1,21 +1,29 @@
+// socialProfile.service.js
 const SocialProfile = require("./socialProfile.model");
 
-class SocialProfileService {
-	static async createOrUpdate(userId, data) {
-		return await SocialProfile.findOneAndUpdate(
-			{ userId },
-			{ ...data, userId },
-			{ upsert: true, new: true, setDefaultsOnInsert: true }
-		);
-	}
+const SocialProfileService = {
+    async create(userId, data) {
+        return await SocialProfile.create({ userId: userId, ...data });
+    },
 
-	static async getByUserId(userId) {
-		return await SocialProfile.findOne({ userId });
-	}
+    async update(profileId, data) {
+        return await SocialProfile.findByIdAndUpdate(profileId, data, {
+            new: true,
+            runValidators: true,
+        });
+    },
 
-	static async delete(userId) {
-		return await SocialProfile.findOneAndDelete({ userId });
-	}
-}
+    async getSocialProfilesByUser(userId) {
+        return await SocialProfile.find({ userId });
+    },
+
+    async getById(profileId) {
+        return await SocialProfile.findById(profileId);
+    },
+
+    async delete(profileId) {
+        return await SocialProfile.findByIdAndDelete(profileId);
+    },
+};
 
 module.exports = SocialProfileService;

@@ -13,7 +13,7 @@ const SkillController = {
 
 	async getSkills(req, res) {
 		try {
-			const skills = await SkillService.getSkills(req.user.userId);
+			const skills = await SkillService.getSkillsByUser(req.user.userId);
 			res.json(skills);
 		} catch (error) {
 			res.status(500).json({ message: "Failed to fetch skills", error });
