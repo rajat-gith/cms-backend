@@ -6,7 +6,12 @@ const ExtraController = {
             const userId = req.user.userId;
             const type = req.params.type;
             const result = await ExtraService.create(type, userId, req.body);
-            res.status(201).json(result);
+            res.status(201).json(
+                json({
+                    message: `${type} added`,
+                    data: result,
+                })
+            );
         } catch (err) {
             res.status(400).json({ error: err.message });
         }

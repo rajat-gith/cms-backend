@@ -4,10 +4,16 @@ const SocialProfileController = {
     // Create profile
     async createProfile(req, res) {
         try {
-			console.log(req.user)
+            console.log(req.user);
             const userId = req.user.userId; // assume user is authenticated
-            const socialProfile = await SocialProfileService.create(userId, req.body);
-            res.status(201).json({ message: "Profile created", socialProfile });
+            const socialProfile = await SocialProfileService.create(
+                userId,
+                req.body
+            );
+            res.status(201).json({
+                message: "Social Profile created",
+                data: socialProfile,
+            });
         } catch (error) {
             res.status(500).json({ message: "Error creating profile", error });
         }

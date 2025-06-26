@@ -8,7 +8,10 @@ const CertificationController = {
                 userId: req.user.userId,
             };
             const cert = await CertificationService.addCertification(payload);
-            res.status(201).json({ message: "Certification added", cert });
+            res.status(201).json({
+                message: "Certification added",
+                data: cert,
+            });
         } catch (err) {
             res.status(500).json({
                 message: "Failed to add certification",
