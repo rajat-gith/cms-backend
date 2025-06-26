@@ -2,38 +2,52 @@ const path = require("path");
 
 const PublicController = {
     async getEntityData(req, res) {
-        const entity = req.params.entity?.toLowerCase();
+        const { module, entity } = req.params;
+        const key = module ? `${module}/${entity}` : entity;
         const { user } = req;
 
         if (!entity) {
             return res.status(400).json({ message: "Entity not provided" });
         }
 
-        const functionName = `get${entity
-            .charAt(0)
-            .toUpperCase()}${entity.slice(1)}sByUser`;
-
         let servicePath;
         try {
-            // Build dynamic path to service file
+            // Construct service path (e.g., ../extra/extra.service.js or ../users/users.service.js)
             servicePath = path.join(
                 __dirname,
                 "..",
-                entity,
-                `${entity}.service.js`
+                module || entity,
+                `${module || entity}.service.js`
             );
+
             const serviceModule = require(servicePath);
 
-            const serviceFunction = serviceModule[functionName];
-            if (typeof serviceFunction !== "function") {
-                return res
-                    .status(400)
-                    .json({
-                        message: `Function ${functionName} not found in ${entity}.service.js`,
-                    });
+            // For module-based services like `extra`, use entity name to generate function
+            let functionName;
+            if (module) {
+                // Capitalize entity singular name for dynamic function name
+                const singular = entity.endsWith("s")
+                    ? entity.slice(0, -1).charAt(0).toUpperCase() +
+                      entity.slice(1, -1)
+                    : entity.charAt(0).toUpperCase() + entity.slice(1);
+
+                functionName = `get${singular}sByUser`; // e.g., getVolunteeringsByUser
+            } else {
+                functionName = `get${entity
+                    .charAt(0)
+                    .toUpperCase()}${entity.slice(1)}sByUser`;
             }
 
-            // Call service function with userId
+            const serviceFunction = serviceModule[functionName];
+
+            if (typeof serviceFunction !== "function") {
+                return res.status(400).json({
+                    message: `Function ${functionName} not found in ${
+                        module || entity
+                    }.service.js`,
+                });
+            }
+
             const data = await serviceFunction(user._id);
             return res.json({ data });
         } catch (err) {
@@ -41,9 +55,10 @@ const PublicController = {
                 `❌ Error loading service from ${servicePath}:`,
                 err.message
             );
-            return res
-                .status(500)
-                .json({ message: `Failed to fetch ${entity} data` });
+            return res.status(500).json({
+                message: `Failed to fetch ${key} data`,
+                error: err.message,
+            });
         }
     },
 };

@@ -4,12 +4,18 @@ const PublicController = require("./public.controller");
 
 const router = express.Router();
 
-// Match /public/:entity
 router.get("/:entity", apiKeyAuthFromQuery, PublicController.getEntityData);
+router.get(
+    "/:module/:entity",
+    apiKeyAuthFromQuery,
+    PublicController.getEntityData
+);
 
-// Optional: handle just /public with a help message
 router.get("/", (req, res) => {
-  res.status(400).json({ message: "Missing entity. Use /public/:entity" });
+    res.status(400).json({
+        message:
+            "Missing entity. Use /public/:entity or /public/:module/:entity",
+    });
 });
 
 module.exports = router;

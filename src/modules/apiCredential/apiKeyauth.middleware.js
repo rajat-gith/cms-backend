@@ -7,25 +7,25 @@ const CACHE_PREFIX = "apiKey:";
 
 async function apiKeyAuth(req, res, next) {
     try {
-        // Extract API credentials from headers
         const apiKey = req.headers["x-api-key"];
         const apiSecret = req.headers["x-api-secret"];
 
         if (!apiKey || !apiSecret) {
-            return res
-                .status(401)
-                .json({
-                    message: "Missing X-API-Key or X-API-Secret in headers",
-                });
+            return res.status(401).json({
+                message: "Missing X-API-Key or X-API-Secret in headers",
+            });
         }
 
-        // 1. Try Redis cache
-        let cached = await redis.get(`${CACHE_PREFIX}${apiKey}`);
+        const redisKey = `${CACHE_PREFIX}${apiKey}`;
         let credential;
 
+        // 1. Try to get credential from Upstash Redis
+        const cached = await redis.get(redisKey);
+
         if (cached) {
-            credential = JSON.parse(cached);
+            credential = cached; // already parsed JSON
         } else {
+            // 2. Fallback to DB lookup
             credential = await ApiCredential.findOne({
                 apiKey,
                 isActive: true,
@@ -35,31 +35,26 @@ async function apiKeyAuth(req, res, next) {
                 return res.status(401).json({ message: "Invalid API key" });
             }
 
-            // Store in cache for 1 hour
-            await redis.setex(
-                `${CACHE_PREFIX}${apiKey}`,
-                3600,
-                JSON.stringify(credential)
-            );
+            // 3. Cache in Upstash (expires in 3600 seconds)
+            await redis.setex(redisKey, 3600, credential);
         }
 
-        // 2. Compare secret
+        // 4. Compare secret
         const valid = await bcrypt.compare(apiSecret, credential.apiSecretHash);
         if (!valid) {
             return res.status(401).json({ message: "Invalid API secret" });
         }
 
-        // 3. Load user
+        // 5. Load user
         const user = await User.findById(credential.user).lean();
         if (!user) {
             return res.status(401).json({ message: "User not found" });
         }
 
-        // 4. Attach to request
         req.user = user;
         req.apiCredential = credential;
 
-        // 5. Optional: update last used
+        // 6. Update lastUsedAt (don't await it)
         ApiCredential.updateOne(
             { _id: credential._id },
             { lastUsedAt: new Date() }
