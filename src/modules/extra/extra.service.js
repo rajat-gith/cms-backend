@@ -8,9 +8,9 @@ const {
 
 // Type → Model mapping
 const modelMap = {
-    "award-honors": AwardHonor,
-    interests: Interest,
-    languages: Language,
+    "award-honor": AwardHonor,
+    interest: Interest,
+    language: Language,
     volunteering: Volunteering,
     extracurricular: Extracurricular,
 };
