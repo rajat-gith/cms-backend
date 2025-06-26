@@ -2,7 +2,7 @@ const allowedTypes = [
   "award-honors",
   "interests",
   "languages",
-  "volunteering",
+  "volunteerings",
   "extracurricular",
 ];
 
