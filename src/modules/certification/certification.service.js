@@ -6,7 +6,7 @@ class CertificationService {
 		return await cert.save();
 	}
 
-	static async getUserCertifications(userId) {
+	static async getCertificationsByUser(userId) {
 		return await Certification.find({ userId });
 	}
 

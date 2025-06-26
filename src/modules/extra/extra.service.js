@@ -1,92 +1,64 @@
-const Language = require("./models/language.model");
-const Interest = require("./models/interest.model");
-const AwardHonor = require("./models/awardHonor.model");
-const Extracurricular = require("./models/extracurricular.model");
-const Volunteering = require("./models/volunteering.model");
+const {
+    AwardHonor,
+    Interest,
+    Language,
+    Volunteering,
+    Extracurricular,
+} = require("./extra.model");
 
-
-
-class VolunteeringService {
-	static async create(data) {
-		const volunteer = new Volunteering(data);
-		return await volunteer.save();
-	}
-
-	static async findByUser(userId) {
-		return await Volunteering.find({ userId });
-	}
-
-	static async update(id, updates) {
-		return await Volunteering.findByIdAndUpdate(id, updates, { new: true });
-	}
-}
-
-class InterestService {
-	static async create(data) {
-		const interest = new Interest(data);
-		return await interest.save();
-	}
-
-	static async findByUser(userId) {
-		return await Interest.find({ userId });
-	}
-
-	static async update(id, updates) {
-		return await Interest.findByIdAndUpdate(id, updates, { new: true });
-	}
-}
-
-class AwardHonorService {
-	static async create(data) {
-		const award = new AwardHonor(data);
-		return await award.save();
-	}
-
-	static async findByUser(userId) {
-		return await AwardHonor.find({ userId });
-	}
-
-	static async update(id, updates) {
-		return await AwardHonor.findByIdAndUpdate(id, updates, { new: true });
-	}
-}
-
-class LanguageService {
-	static async create(data) {
-		const language = new Language(data);
-		return await language.save();
-	}
-
-	static async findByUser(userId) {
-		return await Language.find({ userId });
-	}
-
-	static async update(id, updates) {
-		return await Language.findByIdAndUpdate(id, updates, { new: true });
-	}
-}
-
-class ExtracurricularService {
-	static async create(data) {
-		const activity = new Extracurricular(data);
-		return await activity.save();
-	}
-
-	static async findByUser(userId) {
-		return await Extracurricular.find({ userId });
-	}
-
-	static async update(id, updates) {
-		return await Extracurricular.findByIdAndUpdate(id, updates, {
-			new: true,
-		});
-	}
-}
-
-module.exports = {
-	AwardHonorService,
-	VolunteeringService,
-	ExtracurricularService,
-	InterestService,
-	LanguageService,
+// Type → Model mapping
+const modelMap = {
+    "award-honors": AwardHonor,
+    interests: Interest,
+    languages: Language,
+    volunteering: Volunteering,
+    extracurricular: Extracurricular,
 };
+
+// Singular Entity Name mapping for dynamic function generation
+const entityMap = {
+    "award-honors": { model: AwardHonor, singular: "AwardHonor" },
+    interests: { model: Interest, singular: "Interest" },
+    languages: { model: Language, singular: "Language" },
+    volunteering: { model: Volunteering, singular: "Volunteering" },
+    extracurricular: { model: Extracurricular, singular: "Extracurricular" },
+};
+
+const getModel = (type) => {
+    const entry = modelMap[type];
+    if (!entry) throw new Error(`❌ Invalid schema type: ${type}`);
+    return entry;
+};
+
+const ExtraService = {
+    async create(type, userId, data) {
+        const Model = getModel(type);
+        return await Model.create({ ...data, userId });
+    },
+
+    async getAll(type, userId) {
+        const Model = getModel(type);
+        return await Model.find({ userId });
+    },
+
+    async update(type, id, userId, data) {
+        const Model = getModel(type);
+        return await Model.findOneAndUpdate({ _id: id, userId }, data, {
+            new: true,
+        });
+    },
+
+    async remove(type, id, userId) {
+        const Model = getModel(type);
+        return await Model.findOneAndDelete({ _id: id, userId });
+    },
+};
+
+for (const [type, { model, singular }] of Object.entries(entityMap)) {
+    const functionName = `get${singular}sByUser`;
+    ExtraService[functionName] = async (userId) => {
+        return await model.find({ userId });
+    };
+}
+
+module.exports = ExtraService;
