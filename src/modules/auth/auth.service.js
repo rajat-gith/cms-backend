@@ -2,7 +2,9 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const config = require("../../config");
 const { OAuth2Client } = require("google-auth-library");
-const UserService = require("../user/user.service"); // Import user service
+const db = require("../../db/index");
+const UserService = require("../user/user.service");
+const queries = require("./auth.queries");
 
 const oAuth2Client = new OAuth2Client(
 	config.google.clientId,
@@ -12,122 +14,121 @@ const oAuth2Client = new OAuth2Client(
 
 class AuthService {
 	static async registerUser(email, name, username, password) {
-		const existingUser = await UserService.findUserByEmail(email);
-		if (existingUser) {
+		const { rows: existingRows } = await db.query(queries._findByEmail(), [
+			email,
+		]);
+
+		if (existingRows[0]) {
 			throw new Error("User with this email already exists.");
 		}
-		const user = await UserService.createUser({
+
+
+		const user = await UserService.createUser({ email, name, username });
+		const passwordHash = await bcrypt.hash(password, 10);
+
+		await db.query(queries._createAuth(), [
+			user.id,
 			email,
-			name,
-			username,
-			password,
-		});
-		return this.generateAuthToken(user);
+			passwordHash,
+			null,
+			null,
+		]);
+
+		return this.generateAuthToken(user, "email");
 	}
 
 	static async loginUser(email, password) {
-		const user = await UserService.findUserByEmail(email);
-		if (!user || !user.password) {
-			throw new Error("Invalid credentials");
-		}
-		const isMatch = await bcrypt.compare(password, user.password);
-		if (!isMatch) {
-			throw new Error("Invalid credentials.");
-		}
-		return this.generateAuthToken(user);
+		const { rows } = await db.query(queries._findByEmail(), [email]);
+		const auth = rows[0];
+
+		if (!auth || !auth.password) throw new Error("Invalid credentials");
+
+		const isMatch = await bcrypt.compare(password, auth.password);
+		if (!isMatch) throw new Error("Invalid credentials");
+
+		const user = await UserService.findUserById(auth.user_id);
+		return this.generateAuthToken(user, "email");
 	}
 
 	static async handleGoogleAuth(authCode) {
-		try {
-			if (!authCode) {
-				throw new Error("Authorization code is required");
-			}
+		const { tokens } = await oAuth2Client.getToken(authCode);
+		if (!tokens.id_token)
+			throw new Error("Invalid token response from Google");
 
-			const { tokens } = await oAuth2Client.getToken(authCode);
-			if (!tokens.id_token) {
-				throw new Error("Invalid token response from Google");
-			}
+		const ticket = await oAuth2Client.verifyIdToken({
+			idToken: tokens.id_token,
+			audience: config.google.clientId,
+		});
 
-			const ticket = await oAuth2Client.verifyIdToken({
-				idToken: tokens.id_token,
-				audience: config.google.clientId,
-			});
+		const payload = ticket.getPayload();
+		if (!payload.email_verified)
+			throw new Error("Google email not verified");
 
-			const payload = ticket.getPayload();
-			if (!payload.email_verified) {
-				throw new Error("Google email not verified");
-			}
+		const {
+			sub: googleId,
+			email,
+			name = "User",
+			picture: profilePicture,
+		} = payload;
 
-			const {
-				sub: googleId,
-				email,
-				name = "User",
-				picture: profilePicture,
-			} = payload;
+		const { rows: existingGoogle } = await db.query(
+			queries._findByGoogleId(),
+			[googleId]
+		);
+		let user;
 
-			let user = await UserService.findUserByGoogleId(googleId);
-			//here the logic is it will check the user incoming has already created account or not.
+		if (!existingGoogle[0]) {
+			const { rows: existingEmailRows } = await db.query(
+				queries._findByEmail(),
+				[email]
+			);
+			const existing = existingEmailRows[0];
 
-			if (!user) {
-				const existingUser = await UserService.findUserByEmail(email);
-
-				if (existingUser) {
-					// Allow linking Google account only if:
-					// 1. The user does not have a googleId yet (first time linking), OR
-					// 2. The existing googleId matches the current one (same account).
-					// Otherwise, block linking to prevent different Google accounts from using the same email.
-					if (
-						existingUser.googleId &&
-						existingUser.googleId !== googleId
-					) {
-						throw new Error(
-							"Email already linked to different Google account"
-						);
-					}
-
-					user = await UserService.updateUser(existingUser._id, {
-						googleId,
-						profilePicture:
-							profilePicture || existingUser.profilePicture,
-					});
-				} else {
-					// Create new user
-					user = await UserService.createUser({
-						email,
-						name,
-						googleId,
-						profilePicture,
-					});
+			if (existing) {
+				if (existing.google_id && existing.google_id !== googleId) {
+					throw new Error(
+						"Email already linked to different Google account"
+					);
 				}
-			}
 
-			// 5. Generate JWT
-			return this.generateAuthToken(user);
-		} catch (error) {
-			console.error("Google authentication error:", error);
-			throw new Error(`Google authentication failed: ${error.message}`);
+				await db.query(queries._updateAuth(), [
+					googleId,
+					profilePicture,
+					existing.id,
+				]);
+				user = await UserService.getUserById(existing.user_id);
+			} else {
+				user = await UserService.createUser({ email, name });
+
+				await db.query(queries._createAuth(), [
+					user.id,
+					email,
+					null,
+					googleId,
+					profilePicture,
+				]);
+			}
+		} else {
+			const auth = existingGoogle[0];
+			user = await UserService.getUserById(auth.user_id);
 		}
+
+		return this.generateAuthToken(user, "google");
 	}
 
-	static generateAuthToken(user) {
-		const userObj = user.toObject?.() || user;
-		const { password, ...userWithoutPassword } = userObj;
-
+	static generateAuthToken(user, method = "email") {
+		const { password, ...userSafe } = user;
 		const token = jwt.sign(
 			{
-				userId: user._id,
+				userId: user.id,
 				email: user.email,
-				authMethod: user.password ? "email" : "google",
+				authMethod: method,
 			},
 			config.jwt.secret,
 			{ expiresIn: config.jwt.expiresIn }
 		);
 
-		return {
-			user: userWithoutPassword,
-			token,
-			authMethod: user.password ? "email" : "google",
-		};
+		return { user: userSafe, token, authMethod: method };
 	}
 }
 

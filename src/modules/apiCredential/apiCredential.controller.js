@@ -1,152 +1,139 @@
-const ApiCredential = require("./apiCredential.model");
 const bcrypt = require("bcrypt");
 const { v4: uuidv4 } = require("uuid");
+const ApiCredentialService = require("./apiCredential.service");
 
-const MAX_API_KEYS = 2; // Maximum allowed API keys per user
+const MAX_API_KEYS = 2;
 
 const ApiCredentialController = {
-    // Create a new credential
-    async create(req, res) {
-        try {
-            const { userId } = req.user; // Assume user is injected by auth middleware
+	async create(req, res) {
+		try {
+			const { id: userId } = req.user;
 
-            // Check if user already has maximum number of API keys
-            const existingCount = await ApiCredential.countDocuments({
-                user: userId,
-                isActive: true,
-            });
+			const activeCount = await ApiCredentialService.countActiveByUser(
+				userId
+			);
+			if (activeCount >= MAX_API_KEYS) {
+				return res.status(400).json({
+					message: `Maximum of ${MAX_API_KEYS} API keys allowed per user`,
+				});
+			}
 
-            if (existingCount >= MAX_API_KEYS) {
-                return res.status(400).json({
-                    message: `Maximum of ${MAX_API_KEYS} API keys allowed per user`,
-                });
-            }
+			const apiKey = uuidv4();
+			const rawSecret = uuidv4();
+			const apiSecretHash = await bcrypt.hash(rawSecret, 10);
 
-            const rawSecret = uuidv4();
-            const apiKey = uuidv4();
-            const apiSecretHash = await bcrypt.hash(rawSecret, 10);
+			const credential = await ApiCredentialService.createCredential(
+				userId,
+				apiKey,
+				apiSecretHash
+			);
 
-            const credential = await ApiCredential.create({
-                user: userId,
-                apiKey,
-                apiSecretHash,
-                isActive: true,
-            });
+			res.status(201).json({
+				message: "API Key created",
+				_id: credential.id,
+				apiKey: credential.api_key,
+				rawSecret,
+				credential: {
+					_id: credential.id,
+					apiKey: credential.api_key,
+					apiSecret: "",
+					user: credential.user_id,
+					isActive: credential.is_active,
+					createdAt: credential.created_at,
+					updatedAt: credential.updated_at,
+				},
+			});
+		} catch (err) {
+			console.error("Error creating API credential:", err);
+			res.status(500).json({ message: "Internal server error" });
+		}
+	},
 
-            // Return the structure that matches your frontend expectations
-            res.status(201).json({
-                message: "API Key created",
-                _id: credential._id,
-                apiKey: credential.apiKey,
-                rawSecret, // Only return once!
-                credential: {
-                    _id: credential._id,
-                    apiKey: credential.apiKey,
-                    apiSecret: "", // Don't expose the hash
-                    user: credential.user,
-                    isActive: credential.isActive,
-                    createdAt: credential.createdAt,
-                    updatedAt: credential.updatedAt,
-                },
-            });
-        } catch (err) {
-            console.error("Error creating API key:", err);
-            res.status(500).json({ message: "Internal server error" });
-        }
-    },
+	// Fetch all credentials for a user
+	async getAll(req, res) {
+		try {
+			const { id: userId } = req.user;
+			const creds = await ApiCredentialService.getCredentialsByUser(
+				userId
+			);
 
-    // Get all credentials for a user
-    async getAll(req, res) {
-        try {
-            const { userId } = req.user;
-            const creds = await ApiCredential.find({ user: userId }).select(
-                "-apiSecretHash"
-            );
+			const response = creds.map((cred) => ({
+				_id: cred.id,
+				apiKey: cred.api_key,
+				apiSecret: "",
+				user: cred.user_id,
+				isActive: cred.is_active,
+				createdAt: cred.created_at,
+				updatedAt: cred.updated_at,
+			}));
 
-            // Transform the response to match frontend expectations
-            const transformedCreds = creds.map((cred) => ({
-                _id: cred._id,
-                apiKey: cred.apiKey,
-                apiSecret: "", // Never expose the actual secret
-                user: cred.user,
-                isActive: cred.isActive,
-                createdAt: cred.createdAt,
-                updatedAt: cred.updatedAt,
-            }));
+			res.json({ credentials: response });
+		} catch (err) {
+			console.error("Error fetching credentials:", err);
+			res.status(500).json({ message: "Failed to fetch credentials" });
+		}
+	},
 
-            res.json({ credentials: transformedCreds });
-        } catch (err) {
-            console.error("Error fetching credentials:", err);
-            res.status(500).json({ message: "Failed to fetch credentials" });
-        }
-    },
+	// Delete a credential
+	async remove(req, res) {
+		try {
+			const { id } = req.params;
+			const { id: userId } = req.user;
 
-    // Delete a specific credential
-    async remove(req, res) {
-        try {
-            const { id } = req.params;
-            const { userId } = req.user;
+			const deleted = await ApiCredentialService.deleteCredential(
+				id,
+				userId
+			);
+			if (!deleted) {
+				return res
+					.status(404)
+					.json({ message: "Credential not found or unauthorized" });
+			}
 
-            // Make sure user can only delete their own credentials
-            const deleted = await ApiCredential.findOneAndDelete({
-                _id: id,
-                user: userId,
-            });
+			res.json({
+				message: "API key deleted",
+				deletedId: deleted.id,
+			});
+		} catch (err) {
+			console.error("Error deleting API key:", err);
+			res.status(500).json({ message: "Error deleting API key" });
+		}
+	},
 
-            if (!deleted) {
-                return res
-                    .status(404)
-                    .json({ message: "Credential not found" });
-            }
+	// Toggle active status
+	async toggleActive(req, res) {
+		try {
+			const { id } = req.params;
+			const { id: userId } = req.user;
 
-            res.json({
-                message: "API key deleted",
-                deletedId: id,
-            });
-        } catch (err) {
-            console.error("Error deleting API key:", err);
-            res.status(500).json({ message: "Error deleting API key" });
-        }
-    },
+			const updated = await ApiCredentialService.toggleCredential(
+				id,
+				userId
+			);
+			if (!updated) {
+				return res
+					.status(404)
+					.json({ message: "Credential not found or unauthorized" });
+			}
 
-    // Toggle isActive flag
-    async toggleActive(req, res) {
-        try {
-            const { id } = req.params;
-            const { userId } = req.user;
-
-            const credential = await ApiCredential.findOne({
-                _id: id,
-                user: userId,
-            });
-
-            if (!credential) {
-                return res
-                    .status(404)
-                    .json({ message: "Credential not found" });
-            }
-
-            credential.isActive = !credential.isActive;
-            await credential.save();
-
-            res.json({
-                message: "Updated status",
-                isActive: credential.isActive,
-                credential: {
-                    _id: credential._id,
-                    apiKey: credential.apiKey,
-                    apiSecret: "",
-                    user: credential.user,
-                    isActive: credential.isActive,
-                    createdAt: credential.createdAt,
-                    updatedAt: credential.updatedAt,
-                },
-            });
-        } catch (err) {
-            console.error("Error toggling active status:", err);
-            res.status(500).json({ message: "Error toggling active status" });
-        }
-    },
+			res.json({
+				message: "Updated status",
+				isActive: updated.is_active,
+				credential: {
+					_id: updated.id,
+					apiKey: updated.api_key,
+					apiSecret: "",
+					user: updated.user_id,
+					isActive: updated.is_active,
+					createdAt: updated.created_at,
+					updatedAt: updated.updated_at,
+				},
+			});
+		} catch (err) {
+			console.error("Error toggling credential:", err);
+			res.status(500).json({ message: "Error toggling active status" });
+		}
+	},
 };
 
 module.exports = ApiCredentialController;

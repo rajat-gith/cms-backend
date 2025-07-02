@@ -6,11 +6,12 @@ class AuthController {
 		if (!email || !password) {
 			return res
 				.status(400)
-				.json({ message: "Email, name, and password are required." });
+				.json({ message: "Email and password are required." });
 		}
+
 		try {
 			const name = email.split("@")[0];
-			const username = email.split("@")[0];
+			const username = name;
 			const { user, token } = await AuthService.registerUser(
 				email,
 				name,
@@ -34,6 +35,7 @@ class AuthController {
 				.status(400)
 				.json({ message: "Email and password are required." });
 		}
+
 		try {
 			const { user, token } = await AuthService.loginUser(
 				email,
@@ -72,4 +74,5 @@ class AuthController {
 		}
 	}
 }
+
 module.exports = AuthController;
