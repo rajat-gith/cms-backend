@@ -3,12 +3,13 @@ const BlogService = require("./blog.service");
 const BlogController = {
 	async createBlog(req, res) {
 		try {
-			const authorName = await BlogService.getUserName(req.user.userId);
+			const authorName = await BlogService.getUserName(req.user.id);
+			console.log("Author Name:", req.user.id);
 			const blog = await BlogService.createBlog({
 				...req.body,
 				author: {
 					name: authorName || "Anonymous",
-					userId: req.user.userId,
+					userId: req.user.id,
 				},
 			});
 			res.status(201).json({
@@ -30,7 +31,7 @@ const BlogController = {
 
 	async getBlogs(req, res) {
 		try {
-			const blogs = await BlogService.getAllBlogs(req.user.userId);
+			const blogs = await BlogService.getAllBlogs(req.user.id);
 			res.json({ success: true, count: blogs.length, data: blogs });
 		} catch (err) {
 			res.status(500).json({ success: false, message: err.message });
@@ -44,7 +45,7 @@ const BlogController = {
 				return res
 					.status(404)
 					.json({ success: false, message: "Blog not found" });
-			if (blog.author.userId !== req.user.userId && !blog.isPublished) {
+			if (blog.author.userId !== req.user.id && !blog.isPublished) {
 				return res
 					.status(403)
 					.json({
@@ -65,7 +66,7 @@ const BlogController = {
 				return res
 					.status(404)
 					.json({ success: false, message: "Blog not found" });
-			if (blog.author.userId !== req.user.userId) {
+			if (blog.author.userId !== req.user.id) {
 				return res
 					.status(403)
 					.json({
@@ -94,7 +95,7 @@ const BlogController = {
 				return res
 					.status(404)
 					.json({ success: false, message: "Blog not found" });
-			if (blog.author.userId !== req.user.userId) {
+			if (blog.author.userId !== req.user.id) {
 				return res
 					.status(403)
 					.json({
@@ -123,7 +124,7 @@ const BlogController = {
 						success: false,
 						message: "Search term is required",
 					});
-			const blogs = await BlogService.searchBlogs(q, req.user.userId);
+			const blogs = await BlogService.searchBlogs(q, req.user.id);
 			res.json({
 				success: true,
 				searchTerm: q,
@@ -137,10 +138,10 @@ const BlogController = {
 
 	async getBlogStats(req, res) {
 		try {
-			const total = await BlogService.countUserBlogs(req.user.userId);
+			const total = await BlogService.countUserBlogs(req.user.id);
 			res.json({
 				success: true,
-				data: { totalBlogs: total, userId: req.user.userId },
+				data: { totalBlogs: total, userId: req.user.id },
 			});
 		} catch (err) {
 			res.status(500).json({ success: false, message: err.message });

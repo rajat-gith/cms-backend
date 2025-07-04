@@ -1,28 +1,153 @@
-const Certification = require("./certification.model");
+const pool = require("../../db/index");
+const queries = require("./certification.queries");
 
 class CertificationService {
-	static async addCertification(data) {
-		const cert = new Certification(data);
-		return await cert.save();
-	}
+    static async addCertification(data) {
+        const {
+            name,
+            issuingOrganization,
+            issueDate,
+            expirationDate,
+            isExpired = false,
+            credentialId,
+            credentialURL,
+            category,
+            skills,
+            userId
+        } = data;
 
-	static async getCertificationsByUser(userId) {
-		return await Certification.find({ userId });
-	}
+        const client = await pool.connect();
+        try {
+            const result = await client.query(queries._addCertification(), [
+                name,
+                issuingOrganization,
+                issueDate,
+                expirationDate,
+                isExpired,
+                credentialId,
+                credentialURL,
+                category,
+                skills,
+                userId
+            ]);
+            return result.rows[0];
+        } finally {
+            client.release();
+        }
+    }
 
-	static async updateCertification(certId, updates) {
-		return await Certification.findByIdAndUpdate(certId, updates, {
-			new: true,
-		});
-	}
+    static async getCertificationsByUser(userId) {
+        const client = await pool.connect();
+        try {
+            const result = await client.query(queries._getCertificationsByUser(), [userId]);
+            return result.rows;
+        } finally {
+            client.release();
+        }
+    }
 
-	static async deleteCertification(certId) {
-		return await Certification.findByIdAndDelete(certId);
-	}
+    static async updateCertification(certId, updates) {
+        const {
+            name,
+            issuingOrganization,
+            issueDate,
+            expirationDate,
+            isExpired,
+            credentialId,
+            credentialURL,
+            category,
+            skills
+        } = updates;
 
-	static async getCertificationById(certId) {
-		return await Certification.findById(certId);
-	}
+        const client = await pool.connect();
+        try {
+            const result = await client.query(queries._updateCertification(), [
+                certId,
+                name,
+                issuingOrganization,
+                issueDate,
+                expirationDate,
+                isExpired,
+                credentialId,
+                credentialURL,
+                category,
+                skills
+            ]);
+            return result.rows[0];
+        } finally {
+            client.release();
+        }
+    }
+
+    static async deleteCertification(certId) {
+        const client = await pool.connect();
+        try {
+            const result = await client.query(queries._deleteCertification(), [certId]);
+            return result.rows[0];
+        } finally {
+            client.release();
+        }
+    }
+
+    static async getCertificationById(certId) {
+        const client = await pool.connect();
+        try {
+            const result = await client.query(queries._getCertificationById(), [certId]);
+            return result.rows[0];
+        } finally {
+            client.release();
+        }
+    }
+
+    static async getCertificationByIdAndUser(certId, userId) {
+        const client = await pool.connect();
+        try {
+            const result = await client.query(queries._getCertificationByIdAndUser(), [certId, userId]);
+            return result.rows[0];
+        } finally {
+            client.release();
+        }
+    }
+
+    static async getExpiredCertifications(userId) {
+        const client = await pool.connect();
+        try {
+            const result = await client.query(queries._getExpiredCertifications(), [userId]);
+            return result.rows;
+        } finally {
+            client.release();
+        }
+    }
+
+    static async getActiveCertifications(userId) {
+        const client = await pool.connect();
+        try {
+            const result = await client.query(queries._getActiveCertifications(), [userId]);
+            return result.rows;
+        } finally {
+            client.release();
+        }
+    }
+
+    static async getCertificationsByCategory(userId, category) {
+        const client = await pool.connect();
+        try {
+            const result = await client.query(queries._getCertificationsByCategory(), [userId, category]);
+            return result.rows;
+        } finally {
+            client.release();
+        }
+    }
+
+    static async searchCertifications(userId, searchTerm) {
+        const client = await pool.connect();
+        try {
+            const result = await client.query(queries._searchCertifications(), [userId, searchTerm]);
+            return result.rows;
+        } finally {
+            client.release();
+        }
+    }
 }
 
 module.exports = CertificationService;

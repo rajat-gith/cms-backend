@@ -20,14 +20,13 @@ const validateAuthenticationToken = async (req, res, next) => {
 
 	try {
 		const decoded = jwt.verify(token, config.jwt.secret);
-		const user = await UserService.getUserById(decoded.userId);
+		const user = await UserService.findUserById(decoded.userId);
 
 		if (!user) {
 			return res
 				.status(403)
 				.json({ message: "Invalid or expired token." });
 		}
-
 		req.user = user;
 		next();
 	} catch (err) {

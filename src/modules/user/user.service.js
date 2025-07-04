@@ -5,6 +5,9 @@ const userQueries = require("./user.queries");
 class UserService {
 	static async findUserById(id) {
 		try {
+			if (!id) {
+				throw new Error("User ID is required to find a user.");
+			}
 			const result = await db.query(userQueries._findUserById(), [id]);
 			return result.rows[0] || null;
 		} catch (error) {

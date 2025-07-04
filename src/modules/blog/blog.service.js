@@ -1,4 +1,4 @@
-const db = require("../../config/index");
+const db = require("../../db/index");
 const queries = require("./blog.queries");
 
 class BlogService {
@@ -22,22 +22,21 @@ class BlogService {
 	}
 
 	static async createBlog(data) {
-		const client = await db.connect();
 		try {
-			const userCheck = await client.query(
-				queries._validateUserExists(),
-				[data.author.userId]
-			);
+			// ✅ use db.query instead of client.query
+			const userCheck = await db.query(queries._validateUserExists(), [
+				data.author.userId,
+			]);
 			if (userCheck.rowCount === 0) throw new Error("User not found");
 
-			const dupCheck = await client.query(
-				queries._checkDuplicateTitle(),
-				[data.title, data.author.userId]
-			);
+			const dupCheck = await db.query(queries._checkDuplicateTitle(), [
+				data.title,
+				data.author.userId,
+			]);
 			if (dupCheck.rowCount > 0)
 				throw new Error("Blog with this title already exists");
 
-			const result = await client.query(queries._createFullBlog(), [
+			const result = await db.query(queries._createFullBlog(), [
 				data.title,
 				data.content,
 				data.tags,
@@ -48,8 +47,8 @@ class BlogService {
 				data.publishedAt,
 			]);
 			return this.mapDbRowToBlog(result.rows[0]);
-		} finally {
-			client.release();
+		} catch (error) {
+			throw new Error(`Error creating blog: ${error.message}`);
 		}
 	}
 
