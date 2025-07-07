@@ -1,4 +1,3 @@
-// src/modules/socialProfile/socialProfile.controller.js
 const SocialProfileService = require("./socialProfile.service");
 
 const SocialProfileController = {

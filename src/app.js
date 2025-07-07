@@ -35,7 +35,6 @@ app.use(
 	})
 );
 
-console.log("here")
 app.use("/auth", authRoutes);
 app.use("/user", userRoutes);
 app.use("/education", educationRoutes);
@@ -49,7 +48,6 @@ app.use("/skill", skillRoutes);
 app.use("/api-credentials", apiCredentialRoutes);
 app.use("/public", publicRoutes);
 
-// Basic health check
 app.get("/", (req, res) => {
 	res.send("API is running!");
 });

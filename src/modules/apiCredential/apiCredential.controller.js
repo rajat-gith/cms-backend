@@ -56,6 +56,7 @@ const ApiCredentialController = {
 			const creds = await ApiCredentialService.getCredentialsByUser(
 				userId
 			);
+			console.log(userId)
 
 			const response = creds.map((cred) => ({
 				_id: cred.id,

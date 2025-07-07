@@ -4,7 +4,6 @@ const BlogController = {
 	async createBlog(req, res) {
 		try {
 			const authorName = await BlogService.getUserName(req.user.id);
-			console.log("Author Name:", req.user.id);
 			const blog = await BlogService.createBlog({
 				...req.body,
 				author: {

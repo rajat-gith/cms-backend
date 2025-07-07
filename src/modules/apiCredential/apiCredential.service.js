@@ -1,50 +1,102 @@
-const db = require("../../config/index");
+const db = require("../../db/index");
 const queries = require("./apiCredential.queries");
 
-const getCredentialsByUser = async (userId) => {
-	const { rows } = await db.query(queries._getCredentialsByUser(), [userId]);
-	return rows;
-};
+class ApiCredentialService {
+	static async getCredentialsByUser(userId) {
+		const { rows } = await db.query(queries._getCredentialsByUser(), [
+			userId,
+		]);
+		return rows;
+	}
 
-const getCredentialByApiKey = async (apiKey) => {
-	const { rows } = await db.query(queries._getCredentialByApiKey(), [apiKey]);
-	return rows[0];
-};
+	static async getCredentialByApiKey(apiKey) {
+		const { rows } = await db.query(queries._getCredentialByApiKey(), [
+			apiKey,
+		]);
+		return rows[0] || null;
+	}
 
-const createCredential = async (userId, apiKey, apiSecretHash) => {
-	const { rows } = await db.query(queries._createCredential(), [
-		userId,
-		apiKey,
-		apiSecretHash,
-	]);
-	return rows[0];
-};
+	static async createCredential(userId, apiKey, apiSecretHash) {
+		const client = await db.connect();
+		try {
+			await client.query("BEGIN");
 
-const deleteCredential = async (id, userId) => {
-	const { rows } = await db.query(queries._deleteCredential(), [id, userId]);
-	return rows[0];
-};
+			const { rows } = await client.query(queries._createCredential(), [
+				userId,
+				apiKey,
+				apiSecretHash,
+			]);
 
-const toggleCredential = async (id, userId) => {
-	const { rows } = await db.query(queries._toggleCredential(), [id, userId]);
-	return rows[0];
-};
+			await client.query("COMMIT");
+			return rows[0];
+		} catch (error) {
+			await client.query("ROLLBACK");
+			throw new Error(`Error creating API credential: ${error.message}`);
+		} finally {
+			client.release();
+		}
+	}
 
-const countActiveByUser = async (userId) => {
-	const { rows } = await db.query(queries._countActiveByUser(), [userId]);
-	return parseInt(rows[0].count, 10);
-};
+	static async deleteCredential(id, userId) {
+		const client = await db.connect();
+		try {
+			await client.query("BEGIN");
 
-const updateLastUsed = async (id) => {
-	await db.query(queries._updateLastUsed(), [id]);
-};
+			const { rows } = await client.query(queries._deleteCredential(), [
+				id,
+				userId,
+			]);
 
-module.exports = {
-	getCredentialsByUser,
-	getCredentialByApiKey,
-	createCredential,
-	deleteCredential,
-	toggleCredential,
-	countActiveByUser,
-	updateLastUsed,
-};
+			await client.query("COMMIT");
+			return rows[0] || null;
+		} catch (error) {
+			await client.query("ROLLBACK");
+			throw new Error(`Error deleting API credential: ${error.message}`);
+		} finally {
+			client.release();
+		}
+	}
+
+	static async toggleCredential(id, userId) {
+		const client = await db.connect();
+		try {
+			await client.query("BEGIN");
+
+			const { rows } = await client.query(queries._toggleCredential(), [
+				id,
+				userId,
+			]);
+
+			await client.query("COMMIT");
+			return rows[0] || null;
+		} catch (error) {
+			await client.query("ROLLBACK");
+			throw new Error(`Error toggling API credential: ${error.message}`);
+		} finally {
+			client.release();
+		}
+	}
+
+	static async countActiveByUser(userId) {
+		const { rows } = await db.query(queries._countActiveByUser(), [userId]);
+		return parseInt(rows[0]?.count || "0", 10);
+	}
+
+	static async updateLastUsed(id) {
+		const client = await db.connect();
+		try {
+			await client.query("BEGIN");
+			await client.query(queries._updateLastUsed(), [id]);
+			await client.query("COMMIT");
+		} catch (error) {
+			await client.query("ROLLBACK");
+			throw new Error(
+				`Error updating last used timestamp: ${error.message}`
+			);
+		} finally {
+			client.release();
+		}
+	}
+}
+
+module.exports = ApiCredentialService;

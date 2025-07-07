@@ -1,11 +1,34 @@
 const _createEducationQuery = () => {
 	return `
-        INSERT INTO education (
-            course_name, institute, start_date, end_date, is_ongoing, 
-            degree, skills, courseworks, grade_type, grade_value, user_id
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-        RETURNING *
-    `;
+    INSERT INTO education (
+        course_name,
+        institute,
+        start_date,
+        end_date,
+        is_ongoing,
+        degree,
+        skills,
+        courseworks,
+        grade_type,
+        grade_value,
+        user_id
+    ) VALUES (
+        $1,                     -- course_name
+        $2,                     -- institute
+        TO_DATE($3 || '-01', 'YYYY-MM-DD'),   -- start_date
+        CASE 
+        WHEN $4 = '' OR $5::boolean = true THEN NULL
+        ELSE TO_DATE($4 || '-01', 'YYYY-MM-DD')
+        END,                    -- end_date
+        $5,                     -- is_ongoing
+        $6,                     -- degree
+        $7,                     -- skills (array)
+        $8,                     -- courseworks (array)
+        $9,                     -- grade_type
+        $10,                    -- grade_value
+        $11                     -- user_id
+    )
+    RETURNING *;`;
 };
 
 const _getEducationsByUserQuery = () => {
