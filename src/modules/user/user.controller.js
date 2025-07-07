@@ -5,7 +5,7 @@ const config = require("../../config");
 class UserController {
 	static async getProfile(req, res) {
 		try {
-			const user = await UserService.findUserById(req.user.id);
+			const user = await UserService.findUserById(req.user._id);
 			if (!user) {
 				return res.status(404).json({ message: "User not found." });
 			}
@@ -24,7 +24,7 @@ class UserController {
 
 	static async updateProfile(req, res) {
 		try {
-			const user = await UserService.findUserById(req.user.id);
+			const user = await UserService.findUserById(req.user._id);
 			if (!user) {
 				return res.status(404).json({ message: "User not found." });
 			}
@@ -114,7 +114,7 @@ class UserController {
 			const googleId = payload.sub;
 			const googleEmail = payload.email;
 
-			const currentUser = await UserService.findUserById(req.user.id);
+			const currentUser = await UserService.findUserById(req.user._id);
 			if (!currentUser) {
 				return res
 					.status(404)
@@ -125,7 +125,7 @@ class UserController {
 				await UserService.findUserByGoogleId(googleId);
 			if (
 				existingUserWithGoogleId &&
-				existingUserWithGoogleId.id !== currentUser.id
+				existingUserWithGoogleId._id !== currentUser._id
 			) {
 				return res.status(409).json({
 					message:
@@ -135,7 +135,7 @@ class UserController {
 
 			if (currentUser.email !== googleEmail) {
 				console.warn(
-					`User ${currentUser.email} linking Google ID with different email ${googleEmail}`
+					`User ${currentUser.email} linking Google _id with different email ${googleEmail}`
 				);
 			}
 
@@ -147,7 +147,7 @@ class UserController {
 			}
 
 			const updatedUser = await UserService.updateGoogleAccount(
-				currentUser.id,
+				currentUser._id,
 				googleId,
 				payload.picture
 			);
@@ -167,7 +167,7 @@ class UserController {
 
 	static async unlinkGoogleAccount(req, res) {
 		try {
-			const currentUser = await UserService.findUserById(req.user.id);
+			const currentUser = await UserService.findUserById(req.user._id);
 			if (!currentUser) {
 				return res
 					.status(404)
@@ -182,7 +182,7 @@ class UserController {
 
 			// Check if user has a password set for email/password login
 			const passwordCheck = await UserService.checkUserPassword(
-				req.user.id
+				req.user._id
 			);
 			if (!passwordCheck || !passwordCheck.has_password) {
 				return res.status(400).json({
@@ -192,7 +192,7 @@ class UserController {
 			}
 
 			const updatedUser = await UserService.unlinkGoogleAccount(
-				currentUser.id
+				currentUser._id
 			);
 
 			res.status(200).json({

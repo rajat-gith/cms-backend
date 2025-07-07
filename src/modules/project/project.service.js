@@ -50,7 +50,7 @@ class ProjectService {
 					const memberResult = await client.query(
 						ProjectQueries._insertTeamMember(),
 						[
-							project.id,
+							project._id,
 							member.name,
 							member.linkedinURL,
 							member.twitterURL,
@@ -62,7 +62,7 @@ class ProjectService {
 							await client.query(
 								ProjectQueries._insertTeamMemberOtherLink(),
 								[
-									memberResult.rows[0].id,
+									memberResult.rows[0]._id,
 									link.platform,
 									link.url,
 								]
@@ -73,7 +73,7 @@ class ProjectService {
 			}
 
 			await client.query("COMMIT");
-			return await this.getProjectById(project.id);
+			return await this.getProjectById(project._id);
 		} catch (error) {
 			await client.query("ROLLBACK");
 			throw error;
@@ -96,13 +96,13 @@ class ProjectService {
 				for (const project of projects) {
 					const teamMembersResult = await client.query(
 						ProjectQueries._getTeamMembersByProject(),
-						[project.id]
+						[project._id]
 					);
 
 					const teamMembers = teamMembersResult.rows;
 
 					if (teamMembers.length > 0) {
-						const memberIds = teamMembers.map((tm) => tm.id);
+						const memberIds = teamMembers.map((tm) => tm._id);
 						const otherLinksResult = await client.query(
 							ProjectQueries._getTeamMemberOtherLinks(),
 							[memberIds]
@@ -121,7 +121,7 @@ class ProjectService {
 
 						teamMembers.forEach((member) => {
 							member.otherLinks =
-								otherLinksByMember[member.id] || [];
+								otherLinksByMember[member._id] || [];
 						});
 					}
 
@@ -170,7 +170,7 @@ class ProjectService {
 			const teamMembers = teamMembersResult.rows;
 
 			if (teamMembers.length > 0) {
-				const memberIds = teamMembers.map((tm) => tm.id);
+				const memberIds = teamMembers.map((tm) => tm._id);
 				const otherLinksResult = await client.query(
 					ProjectQueries._getTeamMemberOtherLinks(),
 					[memberIds]
@@ -188,7 +188,7 @@ class ProjectService {
 				});
 
 				teamMembers.forEach((member) => {
-					member.otherLinks = otherLinksByMember[member.id] || [];
+					member.otherLinks = otherLinksByMember[member._id] || [];
 				});
 			}
 
@@ -282,7 +282,7 @@ class ProjectService {
 								await client.query(
 									ProjectQueries._insertTeamMemberOtherLink(),
 									[
-										memberResult.rows[0].id,
+										memberResult.rows[0]._id,
 										link.platform,
 										link.url,
 									]

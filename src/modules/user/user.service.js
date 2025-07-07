@@ -3,13 +3,13 @@ const db = require("../../db/index");
 const userQueries = require("./user.queries");
 
 class UserService {
-	static async findUserById(id) {
+	static async findUserById(_id) {
 		try {
-			if (!id) throw new Error("User ID is required to find a user.");
-			const result = await db.query(userQueries._findUserById(), [id]);
+			if (!_id) throw new Error("User _id is required to find a user.");
+			const result = await db.query(userQueries._findUserById(), [_id]);
 			return this.transformUserFromDb(result.rows[0]) || null;
 		} catch (error) {
-			throw new Error(`Error finding user by ID: ${error.message}`);
+			throw new Error(`Error finding user by _id: ${error.message}`);
 		}
 	}
 
@@ -27,14 +27,14 @@ class UserService {
 
 	static async findUserByGoogleId(googleId) {
 		try {
-			if (!googleId) throw new Error("Google ID is required.");
+			if (!googleId) throw new Error("Google _id is required.");
 			const result = await db.query(userQueries._findUserByGoogleId(), [
 				googleId,
 			]);
 			return this.transformUserFromDb(result.rows[0]) || null;
 		} catch (error) {
 			throw new Error(
-				`Error finding user by Google ID: ${error.message}`
+				`Error finding user by Google _id: ${error.message}`
 			);
 		}
 	}
@@ -84,7 +84,7 @@ class UserService {
 
 	static async updateUser(currentUser, updateData) {
 		try {
-			const userId = currentUser.id;
+			const userId = currentUser._id;
 
 			const {
 				first_name = null,
@@ -182,7 +182,7 @@ class UserService {
 		} catch (_) {}
 
 		return {
-			id: user.id,
+			_id: user._id,
 			first_name: user.first_name,
 			middle_name: user.middle_name,
 			last_name: user.last_name,

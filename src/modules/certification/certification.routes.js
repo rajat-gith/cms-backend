@@ -11,8 +11,8 @@ router.get("/search", CertificationController.search);
 router.get("/expired", CertificationController.getExpired);
 router.get("/active", CertificationController.getActive);
 router.get("/category/:category", CertificationController.getByCategory);
-router.get("/:id", CertificationController.getById);
-router.put("/:id", CertificationController.update);
-router.delete("/:id", CertificationController.delete);
+router.get("/:_id", CertificationController.getById);
+router.put("/:_id", CertificationController.update);
+router.delete("/:_id", CertificationController.delete);
 
 module.exports = router;

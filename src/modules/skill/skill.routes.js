@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.post("/", validateAuthenticationToken, SkillController.addSkill);
 router.get("/", validateAuthenticationToken, SkillController.getSkills);
-router.put("/:id", validateAuthenticationToken, SkillController.updateSkill);
-router.delete("/:id", validateAuthenticationToken, SkillController.deleteSkill);
+router.put("/:_id", validateAuthenticationToken, SkillController.updateSkill);
+router.delete("/:_id", validateAuthenticationToken, SkillController.deleteSkill);
 
 module.exports = router;

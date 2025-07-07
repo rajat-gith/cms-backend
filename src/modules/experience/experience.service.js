@@ -55,14 +55,14 @@ class ExperienceService {
 		}
 	}
 
-	static async updateExperience(id, updates) {
+	static async updateExperience(_id, updates) {
 		const client = await pool.connect();
 		try {
 			await client.query("BEGIN");
 
 			// Check existence
 			const checkQuery = experienceQueries._getExperienceByIdQuery();
-			const checkResult = await client.query(checkQuery, [id]);
+			const checkResult = await client.query(checkQuery, [_id]);
 
 			if (checkResult.rows.length === 0) {
 				throw new Error("Experience not found");
@@ -89,7 +89,7 @@ class ExperienceService {
 				period?.ongoing,
 				description,
 				technologiesUsed,
-				id,
+				_id,
 			];
 
 			const result = await client.query(query, values);
@@ -108,13 +108,13 @@ class ExperienceService {
 		}
 	}
 
-	static async deleteExperience(id) {
+	static async deleteExperience(_id) {
 		const client = await pool.connect();
 		try {
 			await client.query("BEGIN");
 
 			const query = experienceQueries._deleteExperienceQuery();
-			const result = await client.query(query, [id]);
+			const result = await client.query(query, [_id]);
 
 			if (result.rows.length === 0) {
 				throw new Error("Experience not found");
@@ -132,7 +132,7 @@ class ExperienceService {
 
 	static transformExperienceData(row) {
 		return {
-			id: row.id,
+			_id: row._id,
 			userId: row.user_id,
 			title: row.title,
 			company: row.company,

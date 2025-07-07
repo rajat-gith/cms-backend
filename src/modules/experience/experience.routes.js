@@ -15,12 +15,12 @@ router.get(
 	ExperienceController.getExperiences
 );
 router.put(
-	"/:id",
+	"/:_id",
 	validateAuthenticationToken,
 	ExperienceController.updateExperience
 );
 router.delete(
-	"/:id",
+	"/:_id",
 	validateAuthenticationToken,
 	ExperienceController.deleteExperience
 );

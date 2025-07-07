@@ -25,7 +25,7 @@ const SocialProfileController = {
 	// Update profile
 	async updateProfile(req, res) {
 		try {
-			const profileId = req.params.id;
+			const profileId = req.params._id;
 			const userId = req.user.userId;
 
 			// Check ownership
@@ -80,10 +80,10 @@ const SocialProfileController = {
 		}
 	},
 
-	// Get profile by ID
+	// Get profile by _id
 	async getProfileById(req, res) {
 		try {
-			const profileId = req.params.id;
+			const profileId = req.params._id;
 			const profile = await SocialProfileService.getById(profileId);
 
 			if (!profile) {
@@ -130,7 +130,7 @@ const SocialProfileController = {
 	// Delete profile
 	async deleteProfile(req, res) {
 		try {
-			const profileId = req.params.id;
+			const profileId = req.params._id;
 			const userId = req.user.userId;
 
 			// Check ownership
@@ -161,7 +161,7 @@ const SocialProfileController = {
 		}
 	},
 
-	// Get profiles by user ID
+	// Get profiles by user _id
 	async getProfilesByUserId(req, res) {
 		try {
 			const targetUserId = req.params.userId;

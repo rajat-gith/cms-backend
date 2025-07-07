@@ -18,7 +18,7 @@ const _updateAuth = (fields) => {
 		.join(", ");
 
 	return {
-		query: `UPDATE auth SET ${setClause}, updated_at = NOW() WHERE id = $1 RETURNING *`,
+		query: `UPDATE auth SET ${setClause}, updated_at = NOW() WHERE _id = $1 RETURNING *`,
 		values: Object.values(fields),
 	};
 };

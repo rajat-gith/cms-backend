@@ -9,7 +9,7 @@ const _checkDuplicateTitle = () => `
 `;
 
 const _validateUserExists = () => `
-  SELECT 1 FROM users WHERE id = $1
+  SELECT 1 FROM users WHERE _id = $1
 `;
 
 const _getAllBlogsByUserId = () => `
@@ -17,7 +17,7 @@ const _getAllBlogsByUserId = () => `
 `;
 
 const _getBlogById = () => `
-  SELECT * FROM blogs WHERE id = $1
+  SELECT * FROM blogs WHERE _id = $1
 `;
 
 const _updateBlogById = () => `
@@ -29,20 +29,20 @@ const _updateBlogById = () => `
     is_published = $5,
     published_at = $6,
     updated_at = NOW()
-  WHERE id = $7
+  WHERE _id = $7
   RETURNING *
 `;
 
 const _deleteBlogById = () => `
-  DELETE FROM blogs WHERE id = $1 RETURNING id
+  DELETE FROM blogs WHERE _id = $1 RETURNING _id
 `;
 
 const _getUserNameById = () => `
-  SELECT username FROM users WHERE id = $1
+  SELECT username FROM users WHERE _id = $1
 `;
 
 const _getBlogWithAuthor = () => `
-  SELECT * FROM blogs WHERE id = $1
+  SELECT * FROM blogs WHERE _id = $1
 `;
 
 const _searchBlogs = () => `

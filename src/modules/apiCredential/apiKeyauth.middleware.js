@@ -56,7 +56,7 @@ async function apiKeyAuth(req, res, next) {
 		req.apiCredential = credential;
 
 		// 7. Update lastUsedAt (non-blocking)
-		ApiCredentialService.updateLastUsed(credential.id).catch(console.error);
+		ApiCredentialService.updateLastUsed(credential._id).catch(console.error);
 
 		next();
 	} catch (err) {

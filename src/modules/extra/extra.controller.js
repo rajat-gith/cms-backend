@@ -39,10 +39,10 @@ const ExtraController = {
 		try {
 			const userId = req.user.userId;
 			const type = req.params.type;
-			const id = req.params.id;
+			const _id = req.params._id;
 			const result = await ExtraService.update(
 				type,
-				id,
+				_id,
 				userId,
 				req.body
 			);
@@ -62,8 +62,8 @@ const ExtraController = {
 		try {
 			const userId = req.user.userId;
 			const type = req.params.type;
-			const id = req.params.id;
-			const result = await ExtraService.remove(type, id, userId);
+			const _id = req.params._id;
+			const result = await ExtraService.remove(type, _id, userId);
 			res.status(200).json({
 				message: `${type} deleted successfully`,
 				data: result,

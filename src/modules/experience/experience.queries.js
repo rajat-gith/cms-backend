@@ -29,7 +29,7 @@ const _updateExperienceQuery = () => {
             description = COALESCE($8, description),
             technologies_used = COALESCE($9, technologies_used),
             updated_at = CURRENT_TIMESTAMP
-        WHERE id = $10
+        WHERE _id = $10
         RETURNING *
     `;
 };
@@ -37,7 +37,7 @@ const _updateExperienceQuery = () => {
 const _deleteExperienceQuery = () => {
 	return `
         DELETE FROM experience 
-        WHERE id = $1
+        WHERE _id = $1
         RETURNING *
     `;
 };
@@ -45,7 +45,7 @@ const _deleteExperienceQuery = () => {
 const _getExperienceByIdQuery = () => {
 	return `
         SELECT * FROM experience 
-        WHERE id = $1
+        WHERE _id = $1
     `;
 };
 

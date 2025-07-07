@@ -35,9 +35,9 @@ const ExperienceController = {
 
 	async updateExperience(req, res) {
 		try {
-			const { id } = req.params;
+			const { _id } = req.params;
 			const updated = await ExperienceService.updateExperience(
-				id,
+				_id,
 				req.body
 			);
 			res.status(200).json(updated);
@@ -58,8 +58,8 @@ const ExperienceController = {
 
 	async deleteExperience(req, res) {
 		try {
-			const { id } = req.params;
-			await ExperienceService.deleteExperience(id);
+			const { _id } = req.params;
+			await ExperienceService.deleteExperience(_id);
 			res.status(204).send();
 		} catch (error) {
 			console.error("Error deleting experience:", error);

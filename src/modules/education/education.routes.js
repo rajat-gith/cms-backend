@@ -7,13 +7,13 @@ const router = express.Router();
 router.post("/", validateAuthenticationToken, EducationController.addEducation);
 router.get("/", validateAuthenticationToken, EducationController.getEducations);
 router.put(
-	"/:id",
+	"/:_id",
 	validateAuthenticationToken,
 	EducationController.updateEducation
 );
 
 router.delete(
-	"/:id",
+	"/:_id",
 	validateAuthenticationToken,
 	EducationController.deleteEducation
 );

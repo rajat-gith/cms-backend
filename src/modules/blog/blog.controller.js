@@ -3,12 +3,12 @@ const BlogService = require("./blog.service");
 const BlogController = {
 	async createBlog(req, res) {
 		try {
-			const authorName = await BlogService.getUserName(req.user.id);
+			const authorName = await BlogService.getUserName(req.user._id);
 			const blog = await BlogService.createBlog({
 				...req.body,
 				author: {
 					name: authorName || "Anonymous",
-					userId: req.user.id,
+					userId: req.user._id,
 				},
 			});
 			res.status(201).json({
@@ -30,7 +30,7 @@ const BlogController = {
 
 	async getBlogs(req, res) {
 		try {
-			const blogs = await BlogService.getAllBlogs(req.user.id);
+			const blogs = await BlogService.getAllBlogs(req.user._id);
 			res.json({ success: true, count: blogs.length, data: blogs });
 		} catch (err) {
 			res.status(500).json({ success: false, message: err.message });
@@ -39,12 +39,12 @@ const BlogController = {
 
 	async getBlogById(req, res) {
 		try {
-			const blog = await BlogService.getBlogById(req.params.id);
+			const blog = await BlogService.getBlogById(req.params._id);
 			if (!blog)
 				return res
 					.status(404)
 					.json({ success: false, message: "Blog not found" });
-			if (blog.author.userId !== req.user.id && !blog.isPublished) {
+			if (blog.author.userId !== req.user._id && !blog.isPublished) {
 				return res
 					.status(403)
 					.json({
@@ -60,12 +60,12 @@ const BlogController = {
 
 	async updateBlog(req, res) {
 		try {
-			const blog = await BlogService.getBlogById(req.params.id);
+			const blog = await BlogService.getBlogById(req.params._id);
 			if (!blog)
 				return res
 					.status(404)
 					.json({ success: false, message: "Blog not found" });
-			if (blog.author.userId !== req.user.id) {
+			if (blog.author.userId !== req.user._id) {
 				return res
 					.status(403)
 					.json({
@@ -74,7 +74,7 @@ const BlogController = {
 					});
 			}
 			const updated = await BlogService.updateBlog(
-				req.params.id,
+				req.params._id,
 				req.body
 			);
 			res.json({
@@ -89,12 +89,12 @@ const BlogController = {
 
 	async deleteBlog(req, res) {
 		try {
-			const blog = await BlogService.getBlogById(req.params.id);
+			const blog = await BlogService.getBlogById(req.params._id);
 			if (!blog)
 				return res
 					.status(404)
 					.json({ success: false, message: "Blog not found" });
-			if (blog.author.userId !== req.user.id) {
+			if (blog.author.userId !== req.user._id) {
 				return res
 					.status(403)
 					.json({
@@ -102,7 +102,7 @@ const BlogController = {
 						message: "Not authorized to delete this blog",
 					});
 			}
-			const result = await BlogService.deleteBlog(req.params.id);
+			const result = await BlogService.deleteBlog(req.params._id);
 			res.json({
 				success: true,
 				message: "Blog deleted successfully",
@@ -123,7 +123,7 @@ const BlogController = {
 						success: false,
 						message: "Search term is required",
 					});
-			const blogs = await BlogService.searchBlogs(q, req.user.id);
+			const blogs = await BlogService.searchBlogs(q, req.user._id);
 			res.json({
 				success: true,
 				searchTerm: q,
@@ -137,10 +137,10 @@ const BlogController = {
 
 	async getBlogStats(req, res) {
 		try {
-			const total = await BlogService.countUserBlogs(req.user.id);
+			const total = await BlogService.countUserBlogs(req.user._id);
 			res.json({
 				success: true,
-				data: { totalBlogs: total, userId: req.user.id },
+				data: { totalBlogs: total, userId: req.user._id },
 			});
 		} catch (err) {
 			res.status(500).json({ success: false, message: err.message });

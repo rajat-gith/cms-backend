@@ -37,13 +37,13 @@ class ApiCredentialService {
 		}
 	}
 
-	static async deleteCredential(id, userId) {
+	static async deleteCredential(_id, userId) {
 		const client = await db.connect();
 		try {
 			await client.query("BEGIN");
 
 			const { rows } = await client.query(queries._deleteCredential(), [
-				id,
+				_id,
 				userId,
 			]);
 
@@ -57,13 +57,13 @@ class ApiCredentialService {
 		}
 	}
 
-	static async toggleCredential(id, userId) {
+	static async toggleCredential(_id, userId) {
 		const client = await db.connect();
 		try {
 			await client.query("BEGIN");
 
 			const { rows } = await client.query(queries._toggleCredential(), [
-				id,
+				_id,
 				userId,
 			]);
 
@@ -82,11 +82,11 @@ class ApiCredentialService {
 		return parseInt(rows[0]?.count || "0", 10);
 	}
 
-	static async updateLastUsed(id) {
+	static async updateLastUsed(_id) {
 		const client = await db.connect();
 		try {
 			await client.query("BEGIN");
-			await client.query(queries._updateLastUsed(), [id]);
+			await client.query(queries._updateLastUsed(), [_id]);
 			await client.query("COMMIT");
 		} catch (error) {
 			await client.query("ROLLBACK");

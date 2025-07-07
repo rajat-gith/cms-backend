@@ -1,6 +1,6 @@
 const _findUserById = () => `
   SELECT 
-    id,
+    _id,
     first_name,
     middle_name,
     last_name,
@@ -17,7 +17,7 @@ const _findUserById = () => `
     phone,
     role
   FROM users 
-  WHERE id = $1
+  WHERE _id = $1
 `;
 
 const _findUserByEmail = () => `
@@ -28,7 +28,7 @@ const _findUserByEmail = () => `
 
 const _findUserByGoogleId = () => `
   SELECT 
-    id,
+    _id,
     first_name,
     middle_name,
     last_name,
@@ -68,7 +68,7 @@ const _createUser = () => `
     $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14
   )
   RETURNING 
-    id,
+    _id,
     first_name,
     middle_name,
     last_name,
@@ -101,9 +101,9 @@ const _updateUser = () => `
     phone = COALESCE($11, phone),
     google_id = CASE WHEN $12::text IS NULL THEN NULL ELSE COALESCE($13::text, google_id) END,
     updated_at = CURRENT_TIMESTAMP
-  WHERE id = $14
+  WHERE _id = $14
   RETURNING 
-    id,
+    _id,
     first_name,
     middle_name,
     last_name,
@@ -123,10 +123,10 @@ const _updateUser = () => `
 
 const _checkUserPassword = () => `
   SELECT 
-    id,
+    _id,
     CASE WHEN password IS NOT NULL AND password != '' THEN true ELSE false END AS has_password
   FROM users 
-  WHERE id = $1
+  WHERE _id = $1
 `;
 
 const _updateGoogleAccount = () => `
@@ -134,9 +134,9 @@ const _updateGoogleAccount = () => `
     google_id = $1,
     profile_photo = COALESCE($2, profile_photo),
     updated_at = CURRENT_TIMESTAMP
-  WHERE id = $3
+  WHERE _id = $3
   RETURNING 
-    id,
+    _id,
     first_name,
     middle_name,
     last_name,
@@ -159,9 +159,9 @@ const _unlinkGoogleAccount = () => `
     google_id = NULL,
     profile_photo = NULL,
     updated_at = CURRENT_TIMESTAMP
-  WHERE id = $1
+  WHERE _id = $1
   RETURNING 
-    id,
+    _id,
     first_name,
     middle_name,
     last_name,

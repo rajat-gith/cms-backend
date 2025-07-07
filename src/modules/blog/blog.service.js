@@ -5,7 +5,7 @@ class BlogService {
 	static mapDbRowToBlog(row) {
 		if (!row) return null;
 		return {
-			id: row.id,
+			_id: row._id,
 			title: row.title,
 			content: row.content,
 			tags: row.tags || [],
@@ -79,7 +79,7 @@ class BlogService {
 
 	static async deleteBlog(blogId) {
 		const { rows } = await db.query(queries._deleteBlogById(), [blogId]);
-		return rows[0] ? { deleted: true, id: rows[0].id } : null;
+		return rows[0] ? { deleted: true, _id: rows[0]._id } : null;
 	}
 
 	static async getUserName(userId) {

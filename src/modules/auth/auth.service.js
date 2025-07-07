@@ -27,7 +27,7 @@ class AuthService {
 		const passwordHash = await bcrypt.hash(password, 10);
 
 		await db.query(queries._createAuth(), [
-			user.id,
+			user._id,
 			email,
 			passwordHash,
 			null,
@@ -94,14 +94,14 @@ class AuthService {
 				await db.query(queries._updateAuth(), [
 					googleId,
 					profilePicture,
-					existing.id,
+					existing._id,
 				]);
 				user = await UserService.getUserById(existing.user_id);
 			} else {
 				user = await UserService.createUser({ email, name });
 
 				await db.query(queries._createAuth(), [
-					user.id,
+					user._id,
 					email,
 					null,
 					googleId,
@@ -120,7 +120,7 @@ class AuthService {
 		const { password, ...userSafe } = user;
 		const token = jwt.sign(
 			{
-				userId: user.id,
+				userId: user._id,
 				email: user.email,
 				authMethod: method,
 			},

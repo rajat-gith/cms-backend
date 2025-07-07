@@ -46,7 +46,7 @@ const _updateSocialProfile = () => `
         other_url = COALESCE($24, other_url),
         other_username = COALESCE($25, other_username),
         updated_at = CURRENT_TIMESTAMP
-    WHERE id = $1
+    WHERE _id = $1
     RETURNING *
 `;
 
@@ -58,18 +58,18 @@ const _getSocialProfilesByUserId = () => `
 
 const _getSocialProfileById = () => `
     SELECT * FROM social_profiles 
-    WHERE id = $1
+    WHERE _id = $1
 `;
 
 const _deleteSocialProfile = () => `
     DELETE FROM social_profiles 
-    WHERE id = $1
+    WHERE _id = $1
     RETURNING *
 `;
 
 const _checkProfileOwnership = () => `
-    SELECT id FROM social_profiles 
-    WHERE id = $1 AND user_id = $2
+    SELECT _id FROM social_profiles 
+    WHERE _id = $1 AND user_id = $2
 `;
 
 const _getAllPublicProfiles = () => `

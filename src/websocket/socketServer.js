@@ -43,7 +43,7 @@ class SocketServer {
 				}
 
 				socket.user = user;
-				socket.userId = user.id;
+				socket.userId = user._id;
 				next();
 			} catch (error) {
 				next(new Error("Authentication failed"));
@@ -53,10 +53,10 @@ class SocketServer {
 
 	setupConnectionHandling() {
 		this.io.on("connection", (socket) => {
-			console.log(`User ${socket.user.name} connected: ${socket.id}`);
+			console.log(`User ${socket.user.name} connected: ${socket._id}`);
 
 			// Register user session
-			this.sessionManager.addUserSession(socket.userId, socket.id);
+			this.sessionManager.addUserSession(socket.userId, socket._id);
 
 			// Handle blog room events
 			this.handleBlogRoomEvents(socket);
@@ -153,7 +153,7 @@ class SocketServer {
 					{
 						reason,
 						duration,
-						userSocket: socket.id,
+						userSocket: socket._id,
 					}
 				);
 
@@ -422,7 +422,7 @@ class SocketServer {
 
 			try {
 				// Remove from session manager
-				this.sessionManager.removeUserSession(socket.userId, socket.id);
+				this.sessionManager.removeUserSession(socket.userId, socket._id);
 
 				// Check if user has any active locks and release them
 				const userLocks = await this.lockManager.getUserActiveLocks(

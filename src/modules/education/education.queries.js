@@ -53,7 +53,7 @@ const _updateEducationQuery = () => {
             grade_type = COALESCE($9, grade_type),
             grade_value = COALESCE($10, grade_value),
             updated_at = CURRENT_TIMESTAMP
-        WHERE id = $11 AND user_id = $12
+        WHERE _id = $11 AND user_id = $12
         RETURNING *
     `;
 };
@@ -61,7 +61,7 @@ const _updateEducationQuery = () => {
 const _deleteEducationQuery = () => {
 	return `
         DELETE FROM education 
-        WHERE id = $1
+        WHERE _id = $1
         RETURNING *
     `;
 };
@@ -69,7 +69,7 @@ const _deleteEducationQuery = () => {
 const _getEducationByIdQuery = () => {
 	return `
         SELECT * FROM education 
-        WHERE id = $1 AND user_id = $2
+        WHERE _id = $1 AND user_id = $2
     `;
 };
 

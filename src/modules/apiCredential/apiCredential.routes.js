@@ -8,12 +8,12 @@ const router = express.Router();
 router.post("/", validateAuthenticationToken, ApiCredentialController.create);
 router.get("/", validateAuthenticationToken, ApiCredentialController.getAll);
 router.delete(
-  "/:id",
+  "/:_id",
   validateAuthenticationToken,
   ApiCredentialController.remove
 );
 router.patch(
-  "/:id/toggle",
+  "/:_id/toggle",
   validateAuthenticationToken,
   ApiCredentialController.toggleActive
 );

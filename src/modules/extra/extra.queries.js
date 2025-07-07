@@ -48,11 +48,11 @@ const _getAllFromTableByUser = (table) => `
 `;
 
 const _getByIdAndUserFromTable = (table) => `
-    SELECT * FROM ${table} WHERE id = $1 AND user_id = $2
+    SELECT * FROM ${table} WHERE _id = $1 AND user_id = $2
 `;
 
 const _deleteByIdAndUserFromTable = (table) => `
-    DELETE FROM ${table} WHERE id = $1 AND user_id = $2 RETURNING *
+    DELETE FROM ${table} WHERE _id = $1 AND user_id = $2 RETURNING *
 `;
 
 const _updateByIdAndUserFromTable = (table, columns) => {
@@ -62,7 +62,7 @@ const _updateByIdAndUserFromTable = (table, columns) => {
 	return `
         UPDATE ${table}
         SET ${setClause}, updated_at = CURRENT_TIMESTAMP
-        WHERE id = $1 AND user_id = $2
+        WHERE _id = $1 AND user_id = $2
         RETURNING *
     `;
 };

@@ -10,7 +10,7 @@ router.use("/:type", validateExtraType);
 // Routes
 router.post("/:type", ExtraController.create);
 router.get("/:type", ExtraController.getAll);
-router.put("/:type/:id", ExtraController.update);
-router.delete("/:type/:id", ExtraController.remove);
+router.put("/:type/:_id", ExtraController.update);
+router.delete("/:type/:_id", ExtraController.remove);
 
 module.exports = router;

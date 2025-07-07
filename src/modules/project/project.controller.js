@@ -31,7 +31,7 @@ class ProjectController {
     static async updateProject(req, res) {
         try {
             const updated = await ProjectService.updateProject(
-                req.params.id,
+                req.params._id,
                 req.body
             );
             res.json({ message: "Project updated", project: updated });
@@ -45,7 +45,7 @@ class ProjectController {
 
     static async deleteProject(req, res) {
         try {
-            await ProjectService.deleteProject(req.params.id);
+            await ProjectService.deleteProject(req.params._id);
             res.json({ message: "Project deleted" });
         } catch (err) {
             res.status(500).json({

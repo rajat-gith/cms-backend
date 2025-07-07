@@ -38,7 +38,7 @@ const _updateCertification = () => {
             category = COALESCE($9, category),
             skills = COALESCE($10, skills),
             updated_at = CURRENT_TIMESTAMP
-        WHERE id = $1
+        WHERE _id = $1
         RETURNING *
     `;
 };
@@ -46,7 +46,7 @@ const _updateCertification = () => {
 const _deleteCertification = () => {
 	return `
         DELETE FROM certifications 
-        WHERE id = $1
+        WHERE _id = $1
         RETURNING *
     `;
 };
@@ -54,14 +54,14 @@ const _deleteCertification = () => {
 const _getCertificationById = () => {
 	return `
         SELECT * FROM certifications 
-        WHERE id = $1
+        WHERE _id = $1
     `;
 };
 
 const _getCertificationByIdAndUser = () => {
 	return `
         SELECT * FROM certifications 
-        WHERE id = $1 AND user_id = $2
+        WHERE _id = $1 AND user_id = $2
     `;
 };
 

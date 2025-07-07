@@ -44,7 +44,7 @@ const CertificationController = {
 			// Check if certification belongs to the user
 			const existingCert =
 				await CertificationService.getCertificationByIdAndUser(
-					req.params.id,
+					req.params._id,
 					req.user.userId
 				);
 
@@ -56,7 +56,7 @@ const CertificationController = {
 			}
 
 			const updated = await CertificationService.updateCertification(
-				req.params.id,
+				req.params._id,
 				req.body
 			);
 
@@ -78,7 +78,7 @@ const CertificationController = {
 			// Check if certification belongs to the user
 			const existingCert =
 				await CertificationService.getCertificationByIdAndUser(
-					req.params.id,
+					req.params._id,
 					req.user.userId
 				);
 
@@ -89,7 +89,7 @@ const CertificationController = {
 				});
 			}
 
-			await CertificationService.deleteCertification(req.params.id);
+			await CertificationService.deleteCertification(req.params._id);
 			res.json({ message: "Certification deleted successfully" });
 		} catch (err) {
 			console.error("Error deleting certification:", err);
@@ -103,7 +103,7 @@ const CertificationController = {
 	async getById(req, res) {
 		try {
 			const cert = await CertificationService.getCertificationByIdAndUser(
-				req.params.id,
+				req.params._id,
 				req.user.userId
 			);
 

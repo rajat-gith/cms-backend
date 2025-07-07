@@ -42,7 +42,7 @@ const SkillController = {
 	async getSkillById(req, res) {
 		try {
 			const skill = await SkillService.getSkillByIdAndUser(
-				req.params.id,
+				req.params._id,
 				req.user.userId
 			);
 			if (!skill) {
@@ -66,7 +66,7 @@ const SkillController = {
 	async updateSkill(req, res) {
 		try {
 			const updated = await SkillService.updateSkill(
-				req.params.id,
+				req.params._id,
 				req.body,
 				req.user.userId
 			);
@@ -90,7 +90,7 @@ const SkillController = {
 
 	async deleteSkill(req, res) {
 		try {
-			await SkillService.deleteSkill(req.params.id, req.user.userId);
+			await SkillService.deleteSkill(req.params._id, req.user.userId);
 			res.json({
 				message: "Skill deleted successfully",
 			});

@@ -154,7 +154,7 @@ const SocialProfileService = {
 
 	formatProfile(profile) {
 		return {
-			id: profile.id,
+			_id: profile._id,
 			userId: profile.user_id,
 			isPublic: profile.is_public,
 			socials: {

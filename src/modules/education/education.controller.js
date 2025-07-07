@@ -3,7 +3,7 @@ const EducationService = require("./education.service");
 class EducationController {
 	static async addEducation(req, res) {
 		try {
-			const data = { ...req.body, userId: req.user.id };
+			const data = { ...req.body, userId: req.user._id };
 			console.log(data);
 			const edu = await EducationService.createEducation(data);
 			res.status(201).json({
@@ -21,7 +21,7 @@ class EducationController {
 	static async getEducations(req, res) {
 		try {
 			const eduList = await EducationService.getEducationsByUser(
-				req.user.id
+				req.user._id
 			);
 			res.status(200).json({ data: eduList });
 		} catch (err) {
@@ -35,8 +35,8 @@ class EducationController {
 	static async updateEducation(req, res) {
 		try {
 			const edu = await EducationService.updateEducation(
-				req.params.id,
-				req.user.id,
+				req.params._id,
+				req.user._id,
 				req.body
 			);
 			if (!edu)
@@ -53,7 +53,7 @@ class EducationController {
 	}
 	static async deleteEducation(req, res) {
 		try {
-			await EducationService.deleteEducation(req.params.id);
+			await EducationService.deleteEducation(req.params._id);
 			res.json({ message: "Deleted successfully" });
 		} catch (err) {
 			res.status(500).json({

@@ -7,7 +7,7 @@ const MAX_API_KEYS = 2;
 const ApiCredentialController = {
 	async create(req, res) {
 		try {
-			const { id: userId } = req.user;
+			const { _id: userId } = req.user;
 
 			const activeCount = await ApiCredentialService.countActiveByUser(
 				userId
@@ -30,11 +30,11 @@ const ApiCredentialController = {
 
 			res.status(201).json({
 				message: "API Key created",
-				_id: credential.id,
+				_id: credential._id,
 				apiKey: credential.api_key,
 				rawSecret,
 				credential: {
-					_id: credential.id,
+					_id: credential._id,
 					apiKey: credential.api_key,
 					apiSecret: "",
 					user: credential.user_id,
@@ -52,14 +52,14 @@ const ApiCredentialController = {
 	// Fetch all credentials for a user
 	async getAll(req, res) {
 		try {
-			const { id: userId } = req.user;
+			const { _id: userId } = req.user;
 			const creds = await ApiCredentialService.getCredentialsByUser(
 				userId
 			);
 			console.log(userId)
 
 			const response = creds.map((cred) => ({
-				_id: cred.id,
+				_id: cred._id,
 				apiKey: cred.api_key,
 				apiSecret: "",
 				user: cred.user_id,
@@ -78,11 +78,11 @@ const ApiCredentialController = {
 	// Delete a credential
 	async remove(req, res) {
 		try {
-			const { id } = req.params;
-			const { id: userId } = req.user;
+			const { _id } = req.params;
+			const { _id: userId } = req.user;
 
 			const deleted = await ApiCredentialService.deleteCredential(
-				id,
+				_id,
 				userId
 			);
 			if (!deleted) {
@@ -93,7 +93,7 @@ const ApiCredentialController = {
 
 			res.json({
 				message: "API key deleted",
-				deletedId: deleted.id,
+				deletedId: deleted._id,
 			});
 		} catch (err) {
 			console.error("Error deleting API key:", err);
@@ -104,11 +104,11 @@ const ApiCredentialController = {
 	// Toggle active status
 	async toggleActive(req, res) {
 		try {
-			const { id } = req.params;
-			const { id: userId } = req.user;
+			const { _id } = req.params;
+			const { _id: userId } = req.user;
 
 			const updated = await ApiCredentialService.toggleCredential(
-				id,
+				_id,
 				userId
 			);
 			if (!updated) {
@@ -121,7 +121,7 @@ const ApiCredentialController = {
 				message: "Updated status",
 				isActive: updated.is_active,
 				credential: {
-					_id: updated.id,
+					_id: updated._id,
 					apiKey: updated.api_key,
 					apiSecret: "",
 					user: updated.user_id,

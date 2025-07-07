@@ -6,12 +6,12 @@ const { validateAuthenticationToken } = require("../auth/auth.middleware");
 router.post("/", validateAuthenticationToken, ProjectController.addProject);
 router.get("/", validateAuthenticationToken, ProjectController.getProjects);
 router.put(
-	"/:id",
+	"/:_id",
 	validateAuthenticationToken,
 	ProjectController.updateProject
 );
 router.delete(
-	"/:id",
+	"/:_id",
 	validateAuthenticationToken,
 	ProjectController.deleteProject
 );

@@ -52,7 +52,7 @@ class EducationService {
 			const result = await client.query(query, [userId]);
 
 			return result.rows.map((row) => ({
-				id: row.id,
+				_id: row._id,
 				courseName: row.course_name,
 				institute: row.institute,
 				periodOfCourse: {
@@ -76,13 +76,13 @@ class EducationService {
 		}
 	}
 
-	static async updateEducation(id, userId, updates) {
+	static async updateEducation(_id, userId, updates) {
 		const client = await pool.connect();
 		try {
 			await client.query("BEGIN");
 
 			const checkQuery = educationQueries._getEducationByIdQuery();
-			const checkResult = await client.query(checkQuery, [id, userId]);
+			const checkResult = await client.query(checkQuery, [_id, userId]);
 
 			if (checkResult.rows.length === 0) {
 				throw new Error("Education not found or unauthorized");
@@ -110,7 +110,7 @@ class EducationService {
 				courseworks,
 				grades?.type,
 				grades?.value,
-				id,
+				_id,
 				userId,
 			];
 
@@ -124,7 +124,7 @@ class EducationService {
 
 			const row = result.rows[0];
 			return {
-				id: row.id,
+				_id: row._id,
 				courseName: row.course_name,
 				institute: row.institute,
 				periodOfCourse: {

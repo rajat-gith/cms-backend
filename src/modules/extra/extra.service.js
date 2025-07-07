@@ -161,14 +161,14 @@ const ExtraService = {
 		}
 	},
 
-	async update(type, id, userId, data) {
+	async update(type, _id, userId, data) {
 		const client = await pool.connect();
 		try {
 			await client.query("BEGIN");
 			const table = getTable(type);
 			const snakeData = toSnakeCase(data);
 
-			delete snakeData.id;
+			delete snakeData._id;
 			delete snakeData.user_id;
 			delete snakeData.created_at;
 			delete snakeData.updated_at;
@@ -183,7 +183,7 @@ const ExtraService = {
 				.replace("{table}", table)
 				.replace("{setClause}", setClause);
 
-			const result = await client.query(query, [id, userId, ...values]);
+			const result = await client.query(query, [_id, userId, ...values]);
 			if (result.rows.length === 0) {
 				throw new Error("Record not found or not authorized");
 			}
@@ -198,7 +198,7 @@ const ExtraService = {
 		}
 	},
 
-	async remove(type, id, userId) {
+	async remove(type, _id, userId) {
 		const client = await pool.connect();
 		try {
 			await client.query("BEGIN");
@@ -206,7 +206,7 @@ const ExtraService = {
 			const query = extraQueries
 				._deleteByIdAndUser()
 				.replace("{table}", table);
-			const result = await client.query(query, [id, userId]);
+			const result = await client.query(query, [_id, userId]);
 			if (result.rows.length === 0) {
 				throw new Error("Record not found or not authorized");
 			}
