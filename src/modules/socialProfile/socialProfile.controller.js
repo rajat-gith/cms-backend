@@ -4,7 +4,7 @@ const SocialProfileController = {
 	// Create profile
 	async createProfile(req, res) {
 		try {
-			const userId = req.user.userId;
+			const userId = req.user._id;
 			const socialProfile = await SocialProfileService.create(
 				userId,
 				req.body
@@ -26,7 +26,7 @@ const SocialProfileController = {
 	async updateProfile(req, res) {
 		try {
 			const profileId = req.params._id;
-			const userId = req.user.userId;
+			const userId = req.user._id;
 
 			// Check ownership
 			const ownsProfile = await SocialProfileService.checkOwnership(
@@ -63,7 +63,7 @@ const SocialProfileController = {
 	// Get current user's profiles
 	async getProfile(req, res) {
 		try {
-			const userId = req.user.userId;
+			const userId = req.user._id;
 			const profiles = await SocialProfileService.getSocialProfilesByUser(
 				userId
 			);
@@ -131,7 +131,7 @@ const SocialProfileController = {
 	async deleteProfile(req, res) {
 		try {
 			const profileId = req.params._id;
-			const userId = req.user.userId;
+			const userId = req.user._id;
 
 			// Check ownership
 			const ownsProfile = await SocialProfileService.checkOwnership(

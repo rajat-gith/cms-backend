@@ -3,7 +3,7 @@ const ExperienceService = require("./experience.service");
 const ExperienceController = {
 	async addExperience(req, res) {
 		try {
-			const data = { ...req.body, userId: req.user.userId };
+			const data = { ...req.body, userId: req.user._id };
 			const result = await ExperienceService.addExperience(data);
 			res.status(201).json({
 				message: "Experience added",
@@ -21,7 +21,7 @@ const ExperienceController = {
 	async getExperiences(req, res) {
 		try {
 			const experiences = await ExperienceService.getExperiencesByUser(
-				req.user.userId
+				req.user._id
 			);
 			res.status(200).json(experiences);
 		} catch (error) {

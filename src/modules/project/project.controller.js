@@ -3,7 +3,7 @@ const ProjectService = require("./project.service");
 class ProjectController {
     static async addProject(req, res) {
         try {
-            const data = { ...req.body, userId: req.user.userId };
+            const data = { ...req.body, userId: req.user._id };
             const project = await ProjectService.addProject(data);
             res.status(201).json({ message: "Project created", data: project });
         } catch (err) {
@@ -17,7 +17,7 @@ class ProjectController {
     static async getProjects(req, res) {
         try {
             const projects = await ProjectService.getProjectsByUser(
-                req.user.userId
+                req.user._id
             );
             res.json(projects);
         } catch (err) {

@@ -3,7 +3,7 @@ const SkillService = require("./skill.service");
 const SkillController = {
 	async addSkill(req, res) {
 		try {
-			const data = { ...req.body, userId: req.user.userId };
+			const data = { ...req.body, userId: req.user._id };
 			const skill = await SkillService.addSkill(data);
 			res.status(201).json({
 				message: "Skill added successfully",
@@ -25,7 +25,7 @@ const SkillController = {
 
 	async getSkills(req, res) {
 		try {
-			const skills = await SkillService.getSkillsByUser(req.user.userId);
+			const skills = await SkillService.getSkillsByUser(req.user._id);
 			res.json({
 				message: "Skills retrieved successfully",
 				data: skills,
@@ -43,7 +43,7 @@ const SkillController = {
 		try {
 			const skill = await SkillService.getSkillByIdAndUser(
 				req.params._id,
-				req.user.userId
+				req.user._id
 			);
 			if (!skill) {
 				return res.status(404).json({
@@ -68,7 +68,7 @@ const SkillController = {
 			const updated = await SkillService.updateSkill(
 				req.params._id,
 				req.body,
-				req.user.userId
+				req.user._id
 			);
 			res.json({
 				message: "Skill updated successfully",
@@ -90,7 +90,7 @@ const SkillController = {
 
 	async deleteSkill(req, res) {
 		try {
-			await SkillService.deleteSkill(req.params._id, req.user.userId);
+			await SkillService.deleteSkill(req.params._id, req.user._id);
 			res.json({
 				message: "Skill deleted successfully",
 			});

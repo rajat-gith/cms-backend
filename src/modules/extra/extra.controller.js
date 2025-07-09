@@ -3,7 +3,7 @@ const ExtraService = require("./extra.service");
 const ExtraController = {
 	async create(req, res) {
 		try {
-			const userId = req.user.userId;
+			const userId = req.user._id;
 			const type = req.params.type;
 			const result = await ExtraService.create(type, userId, req.body);
 			res.status(201).json({
@@ -20,7 +20,7 @@ const ExtraController = {
 
 	async getAll(req, res) {
 		try {
-			const userId = req.user.userId;
+			const userId = req.user._id;
 			const type = req.params.type;
 			const result = await ExtraService.getAll(type, userId);
 			res.status(200).json({
@@ -37,7 +37,7 @@ const ExtraController = {
 
 	async update(req, res) {
 		try {
-			const userId = req.user.userId;
+			const userId = req.user._id;
 			const type = req.params.type;
 			const _id = req.params._id;
 			const result = await ExtraService.update(
@@ -60,7 +60,7 @@ const ExtraController = {
 
 	async remove(req, res) {
 		try {
-			const userId = req.user.userId;
+			const userId = req.user._id;
 			const type = req.params.type;
 			const _id = req.params._id;
 			const result = await ExtraService.remove(type, _id, userId);

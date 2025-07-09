@@ -5,7 +5,7 @@ const CertificationController = {
 		try {
 			const payload = {
 				...req.body,
-				userId: req.user.userId,
+				userId: req.user._id,
 			};
 			const cert = await CertificationService.addCertification(payload);
 			res.status(201).json({
@@ -24,7 +24,7 @@ const CertificationController = {
 	async getAll(req, res) {
 		try {
 			const certs = await CertificationService.getCertificationsByUser(
-				req.user.userId
+				req.user._id
 			);
 			res.json({
 				message: "Certifications retrieved successfully",
@@ -45,7 +45,7 @@ const CertificationController = {
 			const existingCert =
 				await CertificationService.getCertificationByIdAndUser(
 					req.params._id,
-					req.user.userId
+					req.user._id
 				);
 
 			if (!existingCert) {
@@ -79,7 +79,7 @@ const CertificationController = {
 			const existingCert =
 				await CertificationService.getCertificationByIdAndUser(
 					req.params._id,
-					req.user.userId
+					req.user._id
 				);
 
 			if (!existingCert) {
@@ -104,7 +104,7 @@ const CertificationController = {
 		try {
 			const cert = await CertificationService.getCertificationByIdAndUser(
 				req.params._id,
-				req.user.userId
+				req.user._id
 			);
 
 			if (!cert) {
@@ -129,7 +129,7 @@ const CertificationController = {
 	async getExpired(req, res) {
 		try {
 			const certs = await CertificationService.getExpiredCertifications(
-				req.user.userId
+				req.user._id
 			);
 			res.json({
 				message: "Expired certifications retrieved successfully",
@@ -147,7 +147,7 @@ const CertificationController = {
 	async getActive(req, res) {
 		try {
 			const certs = await CertificationService.getActiveCertifications(
-				req.user.userId
+				req.user._id
 			);
 			res.json({
 				message: "Active certifications retrieved successfully",
@@ -167,7 +167,7 @@ const CertificationController = {
 			const { category } = req.params;
 			const certs =
 				await CertificationService.getCertificationsByCategory(
-					req.user.userId,
+					req.user._id,
 					category
 				);
 			res.json({
@@ -193,7 +193,7 @@ const CertificationController = {
 			}
 
 			const certs = await CertificationService.searchCertifications(
-				req.user.userId,
+				req.user._id,
 				q
 			);
 			res.json({
