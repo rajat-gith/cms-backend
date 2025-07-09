@@ -46,7 +46,7 @@ async function apiKeyAuth(req, res, next) {
 		}
 
 		// 5. Load user from DB
-		const user = await UserService.getUserById(credential.user_id);
+		const user = await UserService.findUserById(credential.user_id);
 		if (!user) {
 			return res.status(401).json({ message: "User not found" });
 		}
