@@ -6,6 +6,7 @@ const ExtraController = {
 			const userId = req.user._id;
 			const type = req.params.type;
 			const result = await ExtraService.create(type, userId, req.body);
+			console.log(result)
 			res.status(201).json({
 				message: `${type} added successfully`,
 				data: result,

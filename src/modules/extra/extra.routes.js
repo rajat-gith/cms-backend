@@ -2,10 +2,11 @@ const express = require("express");
 const router = express.Router();
 const ExtraController = require("./extra.controller");
 const validateExtraType = require("./extra.middleware");
+const { validateAuthenticationToken } = require("../auth/auth.middleware");
 
-
-// Apply type validation to all routes
+// Apply middlewares to all routes that have :type
 router.use("/:type", validateExtraType);
+router.use("/:type", validateAuthenticationToken);
 
 // Routes
 router.post("/:type", ExtraController.create);

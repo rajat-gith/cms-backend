@@ -1,4 +1,4 @@
-const { pool } = require("../../db/index");
+const pool = require("../../db/index");
 const extraQueries = require("./extra.queries");
 
 const tableMap = {
@@ -138,7 +138,7 @@ const ExtraService = {
 			const params = getCreateParams(type, userId, data);
 			const result = await client.query(query, params);
 			await client.query("COMMIT");
-			return toCamelCase(result.rows[0]);
+			return result.rows[0];
 		} catch (err) {
 			await client.query("ROLLBACK");
 			throw err;
@@ -151,11 +151,14 @@ const ExtraService = {
 		const client = await pool.connect();
 		try {
 			const table = getTable(type);
-			const query = extraQueries
-				._getAllByUserAndTable()
-				.replace("{table}", table);
+			const query = extraQueries._getAllFromTableByUser(table);
 			const result = await client.query(query, [userId]);
-			return result.rows.map(toCamelCase);
+			console.log(
+				`Executing query: ${query} with userId: ${userId}, ${JSON.stringify(
+					result
+				)}`
+			);
+			return result.rows;
 		} finally {
 			client.release();
 		}
@@ -173,20 +176,15 @@ const ExtraService = {
 			delete snakeData.created_at;
 			delete snakeData.updated_at;
 
-			if (Object.keys(snakeData).length === 0) {
-				throw new Error("No valid fields to update");
-			}
+			const keys = Object.keys(snakeData);
+			if (keys.length === 0) throw new Error("No valid fields to update");
 
-			const { setClause, values } = buildSetClause(snakeData);
-			const query = extraQueries
-				._updateByIdAndUser()
-				.replace("{table}", table)
-				.replace("{setClause}", setClause);
+			const query = extraQueries._updateByIdAndUserFromTable(table, keys);
+			const values = keys.map((k) => snakeData[k]);
 
 			const result = await client.query(query, [_id, userId, ...values]);
-			if (result.rows.length === 0) {
+			if (result.rows.length === 0)
 				throw new Error("Record not found or not authorized");
-			}
 
 			await client.query("COMMIT");
 			return toCamelCase(result.rows[0]);
@@ -203,13 +201,10 @@ const ExtraService = {
 		try {
 			await client.query("BEGIN");
 			const table = getTable(type);
-			const query = extraQueries
-				._deleteByIdAndUser()
-				.replace("{table}", table);
+			const query = extraQueries._deleteByIdAndUserFromTable(table);
 			const result = await client.query(query, [_id, userId]);
-			if (result.rows.length === 0) {
+			if (result.rows.length === 0)
 				throw new Error("Record not found or not authorized");
-			}
 			await client.query("COMMIT");
 			return toCamelCase(result.rows[0]);
 		} catch (err) {
@@ -221,15 +216,13 @@ const ExtraService = {
 	},
 };
 
-// Dynamic getter for each entity type: getAwardHonorsByUser, getLanguagesByUser, etc.
-for (const [type, { table, singular }] of Object.entries(entityMap)) {
+// Dynamic getter functions like getAwardHonorsByUser
+for (const [_, { table, singular }] of Object.entries(entityMap)) {
 	const functionName = `get${singular}sByUser`;
 	ExtraService[functionName] = async (userId) => {
 		const client = await pool.connect();
 		try {
-			const query = extraQueries
-				._getByUserAndTable()
-				.replace("{table}", table);
+			const query = extraQueries._getAllFromTableByUser(table);
 			const result = await client.query(query, [userId]);
 			return result.rows.map(toCamelCase);
 		} finally {
