@@ -22,7 +22,7 @@ async function apiKeyAuth(req, res, next) {
 		// 1. Try Redis first
 		const cached = await redis.get(redisKey);
 		if (cached) {
-			credential = JSON.parse(cached);
+			credential = cached;
 		} else {
 			// 2. Fallback to DB
 			credential = await ApiCredentialService.getCredentialByApiKey(
@@ -60,7 +60,7 @@ async function apiKeyAuth(req, res, next) {
 
 		next();
 	} catch (err) {
-		console.error("❌ API Key Auth Error:", err);
+		console.error("API Key Auth Error:", err);
 		res.status(500).json({ message: "Internal Server Error" });
 	}
 }
