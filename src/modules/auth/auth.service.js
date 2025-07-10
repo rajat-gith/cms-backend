@@ -3,6 +3,9 @@ const jwt = require("jsonwebtoken");
 const config = require("../../config");
 const { OAuth2Client } = require("google-auth-library");
 const db = require("../../db/index");
+const redis = require("./redis/redis.client");
+const otpService = require("./otp/otp.service");
+const { sendOTPMessage } = require("./email/email.producer");
 const UserService = require("../user/user.service");
 const queries = require("./auth.queries");
 
@@ -13,18 +16,37 @@ const oAuth2Client = new OAuth2Client(
 );
 
 class AuthService {
-	static async registerUser(email, name, username, password) {
+	// Step 1: Send OTP to email
+	static async initiateRegistration(email, password) {
 		const { rows: existingRows } = await db.query(queries._findByEmail(), [
 			email,
 		]);
-
-		if (existingRows[0]) {
+		if (existingRows[0])
 			throw new Error("User with this email already exists.");
-		}
 
+		const otp = otpService.generateOTP();
+		await redis.setex(`otp:${email}`, 300, otp); // 5 min expiry
+		await redis.set(`password:${email}`, password, { ex: 600 }); // 10 min expiry
+
+		await sendOTPMessage(email, otp);
+	}
+
+	// Step 2: Verify OTP and register user
+	static async verifyEmailOTP(email, otp) {
+		const cachedOtp = await redis.get(`otp:${email}`);
+
+		if (!cachedOtp || String(cachedOtp) !== otp)
+			throw new Error("Invalid or expired OTP");
+
+		console.log("OTP verified successfully");
+		const password = await redis.get(`password:${email}`);
+		if (!password) throw new Error("Password expired or missing");
+
+		const name = email.split("@")[0];
+		const username = name;
 
 		const user = await UserService.createUser({ email, name, username });
-		const passwordHash = await bcrypt.hash(password, 10);
+		const passwordHash = await bcrypt.hash(String(password), 10);
 
 		await db.query(queries._createAuth(), [
 			user._id,
@@ -34,9 +56,32 @@ class AuthService {
 			null,
 		]);
 
+		await redis.del(`otp:${email}`);
+		await redis.del(`password:${email}`);
+
 		return this.generateAuthToken(user, "email");
 	}
 
+	static async resendOTP(email) {
+		const resendKey = `otp_resend:${email}`;
+		const otpKey = `otp:${email}`;
+
+		const canResend = await redis.get(resendKey);
+		if (canResend) {
+			throw new Error(
+				"OTP already sent. Please wait before requesting again."
+			);
+		}
+
+		const otp = otpService.generateOTP();
+
+		await redis.setex(otpKey, 300, otp);
+		await redis.setex(resendKey, 60, "sent");
+
+		await sendOTPMessage(email, otp);
+	}
+
+	// Login
 	static async loginUser(email, password) {
 		const { rows } = await db.query(queries._findByEmail(), [email]);
 		const auth = rows[0];
@@ -50,6 +95,7 @@ class AuthService {
 		return this.generateAuthToken(user, "email");
 	}
 
+	// Google OAuth
 	static async handleGoogleAuth(authCode) {
 		const { tokens } = await oAuth2Client.getToken(authCode);
 		if (!tokens.id_token)
@@ -75,6 +121,7 @@ class AuthService {
 			queries._findByGoogleId(),
 			[googleId]
 		);
+
 		let user;
 
 		if (!existingGoogle[0]) {
@@ -116,6 +163,7 @@ class AuthService {
 		return this.generateAuthToken(user, "google");
 	}
 
+	// Token generator
 	static generateAuthToken(user, method = "email") {
 		const { password, ...userSafe } = user;
 		const token = jwt.sign(

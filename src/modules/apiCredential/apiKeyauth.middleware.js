@@ -1,5 +1,5 @@
 const bcrypt = require("bcrypt");
-const redis = require("../../utils/redisClient");
+const redis = require("../auth/redis/redis.client");
 const ApiCredentialService = require("./apiCredential.service");
 const UserService = require("../user/user.service");
 

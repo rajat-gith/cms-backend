@@ -10,13 +10,21 @@ class AuthController {
 		}
 
 		try {
-			const name = email.split("@")[0];
-			const username = name;
-			const { user, token } = await AuthService.registerUser(
+			await AuthService.initiateRegistration(email, password);
+			res.status(200).json({
+				message: "OTP sent to your email. Please verify.",
+			});
+		} catch (error) {
+			res.status(409).json({ message: error.message });
+		}
+	}
+
+	static async verifyOTP(req, res) {
+		const { email, otp } = req.body;
+		try {
+			const { user, token } = await AuthService.verifyEmailOTP(
 				email,
-				name,
-				username,
-				password
+				otp
 			);
 			res.status(201).json({
 				message: "Registration successful",
@@ -24,7 +32,22 @@ class AuthController {
 				token,
 			});
 		} catch (error) {
-			res.status(409).json({ message: error.message });
+			res.status(400).json({ message: error.message });
+		}
+	}
+
+	static async resendOtp(req, res) {
+		const { email } = req.body;
+		if (!email) {
+			return res.status(400).json({ message: "Email is required." });
+		}
+
+		try {
+			await AuthService.resendOTP(email);
+			res.status(200).json({ message: "OTP resent successfully." });
+		} catch (error) {
+			const status = error.message.includes("already sent") ? 429 : 500;
+			res.status(status).json({ message: error.message });
 		}
 	}
 
