@@ -15,9 +15,6 @@ const transporter = nodemailer.createTransport({
 	maxMessages: 10,
 });
 
-console.log("EMAIL_USER:", config.email.user);
-console.log("EMAIL_PASS is set:", !!config.email.pass);
-
 async function startConsumer() {
 	try {
 		console.log("Verifying email transporter...");

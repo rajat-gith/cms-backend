@@ -1,7 +1,5 @@
 require("dotenv").config();
 
-console.log(process.env.EMAIL_USER, process.env.EMAIL_PASS);
-
 module.exports = {
 	port: process.env.PORT || 5000,
 
