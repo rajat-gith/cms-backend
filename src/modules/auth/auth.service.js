@@ -143,7 +143,7 @@ class AuthService {
 					profilePicture,
 					existing._id,
 				]);
-				user = await UserService.getUserById(existing.user_id);
+				user = await UserService.findUserById(existing.user_id);
 			} else {
 				user = await UserService.createUser({ email, name });
 
@@ -157,7 +157,7 @@ class AuthService {
 			}
 		} else {
 			const auth = existingGoogle[0];
-			user = await UserService.getUserById(auth.user_id);
+			user = await UserService.findUserById(auth.user_id);
 		}
 
 		return this.generateAuthToken(user, "google");

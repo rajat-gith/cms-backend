@@ -31,6 +31,12 @@ module.exports = {
 		from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
 	},
 
+	aws: {
+		accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+		secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+		region: process.env.AWS_REGION || "us-east-1",
+	},
+	
 	frontendDevUrl: process.env.FRONTEND_DEV_URL || "http://localhost:3000",
 	frontendDeployedUrl: process.env.FRONTEND_DEPLOYED_URL || "",
 

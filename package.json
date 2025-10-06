@@ -13,6 +13,7 @@
 	"author": "Rajat Kumar Nayak",
 	"license": "ISC",
 	"dependencies": {
+		"@aws-sdk/client-ses": "^3.844.0",
 		"@upstash/redis": "^1.35.0",
 		"amqplib": "^0.10.8",
 		"bcrypt": "^6.0.0",
