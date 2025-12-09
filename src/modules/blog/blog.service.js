@@ -46,7 +46,7 @@ class BlogService {
 				data.isPublished,
 				data.publishedAt,
 			]);
-			return this.mapDbRowToBlog(result.rows[0]);
+			return BlogService.mapDbRowToBlog(result.rows[0]);
 		} catch (error) {
 			throw new Error(`Error creating blog: ${error.message}`);
 		}
@@ -56,12 +56,12 @@ class BlogService {
 		const { rows } = await db.query(queries._getAllBlogsByUserId(), [
 			userId,
 		]);
-		return rows.map(this.mapDbRowToBlog);
+		return rows.map(BlogService.mapDbRowToBlog);
 	}
 
 	static async getBlogById(blogId) {
 		const { rows } = await db.query(queries._getBlogById(), [blogId]);
-		return this.mapDbRowToBlog(rows[0]);
+		return BlogService.mapDbRowToBlog(rows[0]);
 	}
 
 	static async updateBlog(blogId, updates) {
@@ -74,7 +74,7 @@ class BlogService {
 			updates.publishedAt,
 			blogId,
 		]);
-		return this.mapDbRowToBlog(rows[0]);
+		return BlogService.mapDbRowToBlog(rows[0]);
 	}
 
 	static async deleteBlog(blogId) {
@@ -94,7 +94,7 @@ class BlogService {
 			pattern,
 			userId,
 		]);
-		return rows.map(this.mapDbRowToBlog);
+		return rows.map(BlogService.mapDbRowToBlog);
 	}
 
 	static async countUserBlogs(userId) {
