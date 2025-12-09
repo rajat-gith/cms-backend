@@ -52,7 +52,7 @@ class BlogService {
 		}
 	}
 
-	static async getAllBlogs(userId) {
+	static async getBlogsByUser(userId) {
 		const { rows } = await db.query(queries._getAllBlogsByUserId(), [
 			userId,
 		]);

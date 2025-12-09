@@ -30,7 +30,7 @@ const BlogController = {
 
 	async getBlogs(req, res) {
 		try {
-			const blogs = await BlogService.getAllBlogs(req.user._id);
+			const blogs = await BlogService.getBlogsByUser(req.user._id);
 			res.json({ success: true, count: blogs.length, data: blogs });
 		} catch (err) {
 			res.status(500).json({ success: false, message: err.message });
