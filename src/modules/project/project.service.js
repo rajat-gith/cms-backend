@@ -36,7 +36,7 @@ class ProjectService {
 					JSON.stringify(otherLinks || []),
 					repositoryLink,
 					liveDemoLink,
-					achievements || [],
+					JSON.stringify(achievements || []),
 					duration?.startDate,
 					duration?.endDate,
 					duration?.isOngoing || false,
