@@ -34,7 +34,7 @@ class ExperienceService {
 
 			const result = await client.query(query, values);
 			await client.query("COMMIT");
-			return this.transformExperienceData(result.rows[0]);
+			return ExperienceService.transformExperienceData(result.rows[0]);
 		} catch (error) {
 			await client.query("ROLLBACK");
 			throw error;
@@ -49,7 +49,7 @@ class ExperienceService {
 			const query = experienceQueries._getExperiencesByUserQuery();
 			const result = await client.query(query, [userId]);
 
-			return result.rows.map((row) => this.transformExperienceData(row));
+			return result.rows.map((row) => ExperienceService.transformExperienceData(row));
 		} finally {
 			client.release();
 		}
@@ -99,7 +99,7 @@ class ExperienceService {
 			}
 
 			await client.query("COMMIT");
-			return this.transformExperienceData(result.rows[0]);
+			return ExperienceService.transformExperienceData(result.rows[0]);
 		} catch (error) {
 			await client.query("ROLLBACK");
 			throw error;
@@ -121,7 +121,7 @@ class ExperienceService {
 			}
 
 			await client.query("COMMIT");
-			return this.transformExperienceData(result.rows[0]);
+			return ExperienceService.transformExperienceData(result.rows[0]);
 		} catch (error) {
 			await client.query("ROLLBACK");
 			throw error;
