@@ -33,7 +33,7 @@ class ProjectService {
 					role,
 					teamSize,
 					projectType || "individual",
-					otherLinks,
+					JSON.stringify(otherLinks || []),
 					repositoryLink,
 					liveDemoLink,
 					achievements || [],
