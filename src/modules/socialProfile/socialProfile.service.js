@@ -43,7 +43,7 @@ const SocialProfileService = {
 			);
 			await client.query("COMMIT");
 
-			return this.formatProfile(result.rows[0]);
+			return SocialProfileService.formatProfile(result.rows[0]);
 		} catch (error) {
 			await client.query("ROLLBACK");
 			throw error;
@@ -93,7 +93,9 @@ const SocialProfileService = {
 			);
 			await client.query("COMMIT");
 
-			return result.rows[0] ? this.formatProfile(result.rows[0]) : null;
+			return result.rows[0]
+				? SocialProfileService.formatProfile(result.rows[0])
+				: null;
 		} catch (error) {
 			await client.query("ROLLBACK");
 			throw error;
@@ -116,7 +118,7 @@ const SocialProfileService = {
 			}
 
 			await client.query("COMMIT");
-			return this.formatProfile(result.rows[0]);
+			return SocialProfileService.formatProfile(result.rows[0]);
 		} catch (error) {
 			await client.query("ROLLBACK");
 			throw error;
@@ -129,14 +131,18 @@ const SocialProfileService = {
 		const result = await pool.query(queries._getSocialProfilesByUserId(), [
 			userId,
 		]);
-		return result.rows.map((profile) => this.formatProfile(profile));
+		return result.rows.map((profile) =>
+			SocialProfileService.formatProfile(profile)
+		);
 	},
 
 	async getById(profileId) {
 		const result = await pool.query(queries._getSocialProfileById(), [
 			profileId,
 		]);
-		return result.rows[0] ? this.formatProfile(result.rows[0]) : null;
+		return result.rows[0]
+			? SocialProfileService.formatProfile(result.rows[0])
+			: null;
 	},
 
 	async checkOwnership(profileId, userId) {
@@ -149,7 +155,9 @@ const SocialProfileService = {
 
 	async getAllPublicProfiles() {
 		const result = await pool.query(queries._getAllPublicProfiles());
-		return result.rows.map((profile) => this.formatProfile(profile));
+		return result.rows.map((profile) =>
+			SocialProfileService.formatProfile(profile)
+		);
 	},
 
 	formatProfile(profile) {

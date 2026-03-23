@@ -64,7 +64,7 @@ const SocialProfileController = {
 	async getProfile(req, res) {
 		try {
 			const userId = req.user._id;
-			const profiles = await SocialProfileService.getSocialProfilesByUser(
+			const profiles = await SocialProfileService.getSocialProfileByUser(
 				userId
 			);
 
