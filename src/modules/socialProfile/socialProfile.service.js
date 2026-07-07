@@ -127,7 +127,7 @@ const SocialProfileService = {
 		}
 	},
 
-	async getSocialProfilesByUser(userId) {
+	async getSocialProfileByUser(userId) {
 		const result = await pool.query(queries._getSocialProfilesByUserId(), [
 			userId,
 		]);
