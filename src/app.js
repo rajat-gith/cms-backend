@@ -14,6 +14,7 @@ const socialProfileRoutes = require("./modules/socialProfile/socialProfile.route
 const skillRoutes = require("./modules/skill/skill.routes");
 const publicRoutes = require("./modules/public/public.routes")
 const apiCredentialRoutes = require("./modules/apiCredential/apiCredential.routes");
+const aiCopilotRoutes = require("./modules/aiCopilot/aiCopilot.routes");
 
 const app = express();
 
@@ -47,6 +48,7 @@ app.use("/socialProfile", socialProfileRoutes);
 app.use("/skill", skillRoutes);
 app.use("/api-credentials", apiCredentialRoutes);
 app.use("/public", publicRoutes);
+app.use("/ai-copilot", aiCopilotRoutes);
 
 app.get("/", (req, res) => {
 	res.send("API is running!");

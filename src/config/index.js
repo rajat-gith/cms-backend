@@ -27,4 +27,19 @@ module.exports = {
 	},
 	frontendDevUrl: process.env.FRONTEND_DEV_URL || "",
 	frontendDeployedUrl: process.env.FRONTEND_DEPLOYED_URL || "",
+	aiCopilot: {
+		baseUrl: process.env.AI_COPILOT_BASE_URL || "http://localhost:8000",
+		syncCooldownMs: parseInt(
+			process.env.AI_COPILOT_SYNC_COOLDOWN_MS || `${15 * 60 * 1000}`, // 15 min default
+			10
+		),
+		redisTtlSeconds: parseInt(
+			process.env.AI_COPILOT_REDIS_TTL_SECONDS || `${60 * 60 * 24}`, // 24h default
+			10
+		),
+		requestTimeoutMs: parseInt(
+			process.env.AI_COPILOT_REQUEST_TIMEOUT_MS || "60000",
+			10
+		),
+	},
 };
