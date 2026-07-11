@@ -48,8 +48,9 @@ const AiCopilotController = {
 			const apiSecret = req.headers["x-api-secret"];
 
 			try {
+				const profileId = `${req.user.username}_${req.user._id}`
 				const stats = await AiCopilotService.triggerIngestion({
-					profileId: userId,
+					profileId: profileId,
 					apiKey,
 					apiSecret: apiSecret,
 				});
