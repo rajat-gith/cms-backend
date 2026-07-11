@@ -67,11 +67,6 @@ const AiCopilotController = {
 			} catch (ingestErr) {
 				await AiCopilotService.recordFailure(userId, ingestErr.message);
 				throw ingestErr;
-			} finally {
-				await ApiCredentialService.deleteCredential(
-					credential._id,
-					userId,
-				);
 			}
 		} catch (err) {
 			console.error("Error syncing AI copilot:", err);
