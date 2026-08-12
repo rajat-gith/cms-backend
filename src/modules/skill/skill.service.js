@@ -2,6 +2,19 @@ const pool = require("../../db/index");
 const skillQueries = require("./skill.queries");
 
 class SkillService {
+	static mapDbRowToSkill(row) {
+		if (!row) return null;
+		return {
+			_id: row._id,
+			name: row.name,
+			level: row.level,
+			category: row.category,
+			userId: row.user_id,
+			createdAt: row.created_at,
+			updatedAt: row.updated_at,
+		};
+	}
+
 	static async addSkill(data) {
 		const { name, level, category, userId } = data;
 		const client = await pool.connect();
@@ -26,7 +39,7 @@ class SkillService {
 			]);
 
 			await client.query("COMMIT");
-			return result.rows[0];
+			return SkillService.mapDbRowToSkill(result.rows[0]);
 		} catch (error) {
 			await client.query("ROLLBACK");
 			throw error;
@@ -43,7 +56,7 @@ class SkillService {
 				skillQueries._getSkillsByUserQuery(),
 				[userId]
 			);
-			return result.rows;
+			return result.rows.map(SkillService.mapDbRowToSkill);
 		} finally {
 			client.release();
 		}
@@ -66,7 +79,7 @@ class SkillService {
 			}
 
 			await client.query("COMMIT");
-			return result.rows[0];
+			return SkillService.mapDbRowToSkill(result.rows[0]);
 		} catch (error) {
 			await client.query("ROLLBACK");
 			throw error;
@@ -108,7 +121,7 @@ class SkillService {
 				skillQueries._getSkillByIdQuery(),
 				[skillId]
 			);
-			return result.rows[0];
+			return SkillService.mapDbRowToSkill(result.rows[0]);
 		} finally {
 			client.release();
 		}
@@ -122,7 +135,7 @@ class SkillService {
 				skillQueries._getSkillByIdAndUserQuery(),
 				[skillId, userId]
 			);
-			return result.rows[0];
+			return SkillService.mapDbRowToSkill(result.rows[0]);
 		} finally {
 			client.release();
 		}

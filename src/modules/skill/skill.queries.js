@@ -1,5 +1,5 @@
 const _addSkillQuery = () => {
-	return `
+    return `
         INSERT INTO skills (name, level, category, user_id)
         VALUES ($1, $2, $3, $4)
         RETURNING _id, name, level, category, user_id, created_at, updated_at
@@ -7,16 +7,26 @@ const _addSkillQuery = () => {
 };
 
 const _getSkillsByUserQuery = () => {
-	return `
-        SELECT _id, name, level, category, user_id, created_at, updated_at
-        FROM skills
-        WHERE user_id = $1
-        ORDER BY created_at DESC
+    return `
+        SELECT 
+            _id, 
+            name, 
+            level, 
+            category, 
+            user_id, 
+            created_at, 
+            updated_at
+        FROM 
+            skills
+        WHERE 
+            user_id = $1
+        ORDER BY 
+            created_at DESC
     `;
 };
 
 const _updateSkillQuery = () => {
-	return `
+    return `
         UPDATE skills
         SET name = COALESCE($2, name),
             level = COALESCE($3, level),
@@ -28,7 +38,7 @@ const _updateSkillQuery = () => {
 };
 
 const _deleteSkillQuery = () => {
-	return `
+    return `
         DELETE FROM skills
         WHERE _id = $1 AND user_id = $2
         RETURNING _id
@@ -36,7 +46,7 @@ const _deleteSkillQuery = () => {
 };
 
 const _getSkillByIdQuery = () => {
-	return `
+    return `
         SELECT _id, name, level, category, user_id, created_at, updated_at
         FROM skills
         WHERE _id = $1
@@ -44,7 +54,7 @@ const _getSkillByIdQuery = () => {
 };
 
 const _getSkillByIdAndUserQuery = () => {
-	return `
+    return `
         SELECT _id, name, level, category, user_id, created_at, updated_at
         FROM skills
         WHERE _id = $1 AND user_id = $2
@@ -52,16 +62,16 @@ const _getSkillByIdAndUserQuery = () => {
 };
 
 const _validateUserExistsQuery = () => {
-	return `
+    return `
         SELECT _id FROM users WHERE _id = $1
     `;
 };
 
 module.exports = {
-	_addSkillQuery,
-	_getSkillsByUserQuery,
-	_updateSkillQuery,
-	_deleteSkillQuery,
+    _addSkillQuery,
+    _getSkillsByUserQuery,
+    _updateSkillQuery,
+    _deleteSkillQuery,
     _getSkillByIdQuery,
     _getSkillByIdAndUserQuery,
     _validateUserExistsQuery,

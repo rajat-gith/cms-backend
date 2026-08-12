@@ -4,6 +4,7 @@ const ProjectQueries = require("./project.queries");
 class ProjectService {
 	static async addProject(data) {
 		const client = await pool.connect();
+
 		try {
 			await client.query("BEGIN");
 
@@ -36,9 +37,9 @@ class ProjectService {
 					JSON.stringify(otherLinks || []),
 					repositoryLink,
 					liveDemoLink,
-					JSON.stringify(achievements || []),
-					duration?.startDate,
-					duration?.endDate,
+					achievements || [],
+					duration?.startDate || null,
+					duration?.endDate || null,
 					duration?.isOngoing || false,
 				]
 			);
@@ -50,19 +51,21 @@ class ProjectService {
 					const memberResult = await client.query(
 						ProjectQueries._insertTeamMember(),
 						[
-							project._id,
+							project.id,
 							member.name,
-							member.linkedinURL,
-							member.twitterURL,
+							member.linkedinURL || null,
+							member.twitterURL || null,
 						]
 					);
+
+					const teamMember = memberResult.rows[0];
 
 					if (member.otherLinks && member.otherLinks.length > 0) {
 						for (const link of member.otherLinks) {
 							await client.query(
 								ProjectQueries._insertTeamMemberOtherLink(),
 								[
-									memberResult.rows[0]._id,
+									teamMember.id,
 									link.platform,
 									link.url,
 								]
@@ -73,7 +76,8 @@ class ProjectService {
 			}
 
 			await client.query("COMMIT");
-			return await this.getProjectById(project._id);
+
+			return await this.getProjectById(project.id);
 		} catch (error) {
 			await client.query("ROLLBACK");
 			throw error;
@@ -84,6 +88,7 @@ class ProjectService {
 
 	static async getProjectsByUser(userId) {
 		const client = await pool.connect();
+
 		try {
 			const projectsResult = await client.query(
 				ProjectQueries._getProjectsByUser(),
@@ -92,56 +97,81 @@ class ProjectService {
 
 			const projects = projectsResult.rows;
 
-			if (projects.length > 0) {
-				for (const project of projects) {
-					const teamMembersResult = await client.query(
-						ProjectQueries._getTeamMembersByProject(),
-						[project._id]
+			if (projects.length === 0) {
+				return [];
+			}
+
+			for (const project of projects) {
+				const teamMembersResult = await client.query(
+					ProjectQueries._getTeamMembersByProject(),
+					[project.id]
+				);
+
+				const teamMembers = teamMembersResult.rows;
+
+				if (teamMembers.length > 0) {
+					const memberIds = teamMembers.map(
+						(member) => member.id
 					);
 
-					const teamMembers = teamMembersResult.rows;
+					const otherLinksResult = await client.query(
+						ProjectQueries._getTeamMemberOtherLinks(),
+						[memberIds]
+					);
 
-					if (teamMembers.length > 0) {
-						const memberIds = teamMembers.map((tm) => tm._id);
-						const otherLinksResult = await client.query(
-							ProjectQueries._getTeamMemberOtherLinks(),
-							[memberIds]
-						);
+					const otherLinksByMember = {};
 
-						const otherLinksByMember = {};
-						otherLinksResult.rows.forEach((link) => {
-							if (!otherLinksByMember[link.team_member_id]) {
-								otherLinksByMember[link.team_member_id] = [];
-							}
-							otherLinksByMember[link.team_member_id].push({
-								platform: link.platform,
-								url: link.url,
-							});
+					otherLinksResult.rows.forEach((link) => {
+						if (!otherLinksByMember[link.teamMemberId]) {
+							otherLinksByMember[link.teamMemberId] = [];
+						}
+
+						otherLinksByMember[link.teamMemberId].push({
+							platform: link.platform,
+							url: link.url,
 						});
+					});
 
-						teamMembers.forEach((member) => {
-							member.otherLinks =
-								otherLinksByMember[member._id] || [];
-						});
-					}
-
-					project.teamMembers = teamMembers.map((tm) => ({
-						name: tm.name,
-						linkedinURL: tm.linkedin_url,
-						twitterURL: tm.twitter_url,
-						otherLinks: tm.otherLinks || [],
-					}));
-
-					project.duration = {
-						startDate: project.start_date,
-						endDate: project.end_date,
-						isOngoing: project.is_ongoing,
-					};
-
-					delete project.start_date;
-					delete project.end_date;
-					delete project.is_ongoing;
+					teamMembers.forEach((member) => {
+						member.otherLinks =
+							otherLinksByMember[member.id] || [];
+					});
 				}
+
+				project.teamMembers = teamMembers.map((member) => ({
+					name: member.name,
+					linkedinURL: member.linkedinURL,
+					twitterURL: member.twitterURL,
+					otherLinks: member.otherLinks || [],
+				}));
+
+				project.duration = {
+					startDate: project.startDate,
+					endDate: project.endDate,
+					isOngoing: project.isOngoing,
+				};
+
+				if (project.achievements) {
+					if (
+						Array.isArray(project.achievements) &&
+						project.achievements.length === 1 &&
+						typeof project.achievements[0] === "string" &&
+						project.achievements[0].startsWith("[") &&
+						project.achievements[0].endsWith("]")
+					) {
+						try {
+							project.achievements = JSON.parse(project.achievements[0]);
+						} catch (e) {
+							// fallback
+						}
+					}
+				} else {
+					project.achievements = [];
+				}
+
+				delete project.startDate;
+				delete project.endDate;
+				delete project.isOngoing;
 			}
 
 			return projects;
@@ -152,13 +182,16 @@ class ProjectService {
 
 	static async getProjectById(projectId) {
 		const client = await pool.connect();
+
 		try {
 			const projectResult = await client.query(
 				ProjectQueries._getProjectById(),
 				[projectId]
 			);
 
-			if (projectResult.rows.length === 0) return null;
+			if (projectResult.rows.length === 0) {
+				return null;
+			}
 
 			const project = projectResult.rows[0];
 
@@ -170,44 +203,68 @@ class ProjectService {
 			const teamMembers = teamMembersResult.rows;
 
 			if (teamMembers.length > 0) {
-				const memberIds = teamMembers.map((tm) => tm._id);
+				const memberIds = teamMembers.map(
+					(member) => member.id
+				);
+
 				const otherLinksResult = await client.query(
 					ProjectQueries._getTeamMemberOtherLinks(),
 					[memberIds]
 				);
 
 				const otherLinksByMember = {};
+
 				otherLinksResult.rows.forEach((link) => {
-					if (!otherLinksByMember[link.team_member_id]) {
-						otherLinksByMember[link.team_member_id] = [];
+					if (!otherLinksByMember[link.teamMemberId]) {
+						otherLinksByMember[link.teamMemberId] = [];
 					}
-					otherLinksByMember[link.team_member_id].push({
+
+					otherLinksByMember[link.teamMemberId].push({
 						platform: link.platform,
 						url: link.url,
 					});
 				});
 
 				teamMembers.forEach((member) => {
-					member.otherLinks = otherLinksByMember[member._id] || [];
+					member.otherLinks =
+						otherLinksByMember[member.id] || [];
 				});
 			}
 
-			project.teamMembers = teamMembers.map((tm) => ({
-				name: tm.name,
-				linkedinURL: tm.linkedin_url,
-				twitterURL: tm.twitter_url,
-				otherLinks: tm.otherLinks || [],
+			project.teamMembers = teamMembers.map((member) => ({
+				name: member.name,
+				linkedinURL: member.linkedinURL,
+				twitterURL: member.twitterURL,
+				otherLinks: member.otherLinks || [],
 			}));
 
 			project.duration = {
-				startDate: project.start_date,
-				endDate: project.end_date,
-				isOngoing: project.is_ongoing,
+				startDate: project.startDate,
+				endDate: project.endDate,
+				isOngoing: project.isOngoing,
 			};
 
-			delete project.start_date;
-			delete project.end_date;
-			delete project.is_ongoing;
+			if (project.achievements) {
+				if (
+					Array.isArray(project.achievements) &&
+					project.achievements.length === 1 &&
+					typeof project.achievements[0] === "string" &&
+					project.achievements[0].startsWith("[") &&
+					project.achievements[0].endsWith("]")
+				) {
+					try {
+						project.achievements = JSON.parse(project.achievements[0]);
+					} catch (e) {
+						// fallback
+					}
+				}
+			} else {
+				project.achievements = [];
+			}
+
+			delete project.startDate;
+			delete project.endDate;
+			delete project.isOngoing;
 
 			return project;
 		} finally {
@@ -217,6 +274,7 @@ class ProjectService {
 
 	static async updateProject(projectId, updates) {
 		const client = await pool.connect();
+
 		try {
 			await client.query("BEGIN");
 
@@ -239,19 +297,23 @@ class ProjectService {
 				ProjectQueries._updateProject(),
 				[
 					projectId,
-					title,
-					description,
-					technologies,
-					role,
-					teamSize,
-					projectType,
-					otherLinks,
-					repositoryLink,
-					liveDemoLink,
-					achievements,
-					duration?.startDate,
-					duration?.endDate,
-					duration?.isOngoing,
+					title ?? null,
+					description ?? null,
+					technologies ?? null,
+					role ?? null,
+					teamSize ?? null,
+					projectType ?? null,
+					otherLinks !== undefined
+						? JSON.stringify(otherLinks)
+						: null,
+					repositoryLink ?? null,
+					liveDemoLink ?? null,
+					achievements !== undefined
+						? achievements
+						: null,
+					duration?.startDate ?? null,
+					duration?.endDate ?? null,
+					duration?.isOngoing ?? null,
 				]
 			);
 
@@ -272,17 +334,22 @@ class ProjectService {
 							[
 								projectId,
 								member.name,
-								member.linkedinURL,
-								member.twitterURL,
+								member.linkedinURL || null,
+								member.twitterURL || null,
 							]
 						);
 
-						if (member.otherLinks && member.otherLinks.length > 0) {
+						const teamMember = memberResult.rows[0];
+
+						if (
+							member.otherLinks &&
+							member.otherLinks.length > 0
+						) {
 							for (const link of member.otherLinks) {
 								await client.query(
 									ProjectQueries._insertTeamMemberOtherLink(),
 									[
-										memberResult.rows[0]._id,
+										teamMember.id,
 										link.platform,
 										link.url,
 									]
@@ -294,6 +361,7 @@ class ProjectService {
 			}
 
 			await client.query("COMMIT");
+
 			return await this.getProjectById(projectId);
 		} catch (error) {
 			await client.query("ROLLBACK");
@@ -305,10 +373,12 @@ class ProjectService {
 
 	static async deleteProject(projectId) {
 		const client = await pool.connect();
+
 		try {
-			const result = await client.query(ProjectQueries._deleteProject(), [
-				projectId,
-			]);
+			const result = await client.query(
+				ProjectQueries._deleteProject(),
+				[projectId]
+			);
 
 			if (result.rows.length === 0) {
 				throw new Error("Project not found");
