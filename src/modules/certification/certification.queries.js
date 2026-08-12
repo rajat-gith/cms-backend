@@ -1,5 +1,21 @@
+const CERT_COLUMNS = `
+    _id, 
+    name, 
+    issuing_organization AS "issuingOrganization", 
+    issue_date AS "issueDate", 
+    expiration_date AS "expirationDate", 
+    is_expired AS "isExpired", 
+    credential_id AS "credentialId", 
+    credential_url AS "credentialURL", 
+    category, 
+    skills, 
+    user_id AS "userId", 
+    created_at AS "createdAt", 
+    updated_at AS "updatedAt"
+`;
+
 const _addCertification = () => {
-	return `
+    return `
         INSERT INTO certifications (
             name, 
             issuing_organization, 
@@ -12,20 +28,21 @@ const _addCertification = () => {
             skills, 
             user_id
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-        RETURNING *
+        RETURNING ${CERT_COLUMNS}
     `;
 };
 
 const _getCertificationsByUser = () => {
-	return `
-        SELECT * FROM certifications 
+    return `
+        SELECT ${CERT_COLUMNS}
+        FROM certifications 
         WHERE user_id = $1 
         ORDER BY created_at DESC
     `;
 };
 
 const _updateCertification = () => {
-	return `
+    return `
         UPDATE certifications 
         SET 
             name = COALESCE($2, name),
@@ -39,59 +56,65 @@ const _updateCertification = () => {
             skills = COALESCE($10, skills),
             updated_at = CURRENT_TIMESTAMP
         WHERE _id = $1
-        RETURNING *
+        RETURNING ${CERT_COLUMNS}
     `;
 };
 
 const _deleteCertification = () => {
-	return `
+    return `
         DELETE FROM certifications 
         WHERE _id = $1
-        RETURNING *
+        RETURNING ${CERT_COLUMNS}
     `;
 };
 
 const _getCertificationById = () => {
-	return `
-        SELECT * FROM certifications 
+    return `
+        SELECT ${CERT_COLUMNS}
+        FROM certifications 
         WHERE _id = $1
     `;
 };
 
 const _getCertificationByIdAndUser = () => {
-	return `
-        SELECT * FROM certifications 
+    return `
+        SELECT ${CERT_COLUMNS}
+        FROM certifications 
         WHERE _id = $1 AND user_id = $2
     `;
 };
 
 const _getExpiredCertifications = () => {
-	return `
-        SELECT * FROM certifications 
+    return `
+        SELECT ${CERT_COLUMNS}
+        FROM certifications 
         WHERE user_id = $1 AND (is_expired = true OR expiration_date < CURRENT_DATE)
         ORDER BY expiration_date DESC
     `;
 };
 
 const _getActiveCertifications = () => {
-	return `
-        SELECT * FROM certifications 
+    return `
+        SELECT ${CERT_COLUMNS}
+        FROM certifications 
         WHERE user_id = $1 AND is_expired = false AND (expiration_date IS NULL OR expiration_date >= CURRENT_DATE)
         ORDER BY created_at DESC
     `;
 };
 
 const _getCertificationsByCategory = () => {
-	return `
-        SELECT * FROM certifications 
+    return `
+        SELECT ${CERT_COLUMNS}
+        FROM certifications 
         WHERE user_id = $1 AND category = $2
         ORDER BY created_at DESC
     `;
 };
 
 const _searchCertifications = () => {
-	return `
-        SELECT * FROM certifications 
+    return `
+        SELECT ${CERT_COLUMNS}
+        FROM certifications 
         WHERE user_id = $1 AND (
             name ILIKE '%' || $2 || '%' OR 
             issuing_organization ILIKE '%' || $2 || '%' OR 
@@ -102,14 +125,14 @@ const _searchCertifications = () => {
 };
 
 module.exports = {
-	_addCertification,
-	_getCertificationsByUser,
-	_updateCertification,
-	_deleteCertification,
-	_getCertificationById,
-	_getCertificationByIdAndUser,
-	_getExpiredCertifications,
-	_getActiveCertifications,
-	_getCertificationsByCategory,
-	_searchCertifications,
+    _addCertification,
+    _getCertificationsByUser,
+    _updateCertification,
+    _deleteCertification,
+    _getCertificationById,
+    _getCertificationByIdAndUser,
+    _getExpiredCertifications,
+    _getActiveCertifications,
+    _getCertificationsByCategory,
+    _searchCertifications,
 };

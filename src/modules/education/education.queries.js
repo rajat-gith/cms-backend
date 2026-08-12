@@ -1,5 +1,22 @@
+const EDUCATION_COLUMNS = `
+    _id, 
+    course_name AS "courseName", 
+    institute, 
+    start_date AS "startDate", 
+    end_date AS "endDate", 
+    is_ongoing AS "isOngoing", 
+    degree, 
+    skills, 
+    courseworks, 
+    grade_type AS "gradeType", 
+    grade_value AS "gradeValue", 
+    user_id AS "userId", 
+    created_at AS "createdAt", 
+    updated_at AS "updatedAt"
+`;
+
 const _createEducationQuery = () => {
-	return `
+    return `
     INSERT INTO education (
         course_name,
         institute,
@@ -28,19 +45,20 @@ const _createEducationQuery = () => {
         $10,                    -- grade_value
         $11                     -- user_id
     )
-    RETURNING *;`;
+    RETURNING ${EDUCATION_COLUMNS};`;
 };
 
 const _getEducationsByUserQuery = () => {
-	return `
-        SELECT * FROM education 
+    return `
+        SELECT ${EDUCATION_COLUMNS}
+        FROM education 
         WHERE user_id = $1 
         ORDER BY created_at DESC
     `;
 };
 
 const _updateEducationQuery = () => {
-	return `
+    return `
         UPDATE education 
         SET course_name = COALESCE($1, course_name),
             institute = COALESCE($2, institute),
@@ -54,29 +72,30 @@ const _updateEducationQuery = () => {
             grade_value = COALESCE($10, grade_value),
             updated_at = CURRENT_TIMESTAMP
         WHERE _id = $11 AND user_id = $12
-        RETURNING *
+        RETURNING ${EDUCATION_COLUMNS}
     `;
 };
 
 const _deleteEducationQuery = () => {
-	return `
+    return `
         DELETE FROM education 
-        WHERE _id = $1
-        RETURNING *
+        WHERE _id = $1 AND user_id = $2
+        RETURNING ${EDUCATION_COLUMNS}
     `;
 };
 
 const _getEducationByIdQuery = () => {
-	return `
-        SELECT * FROM education 
+    return `
+        SELECT ${EDUCATION_COLUMNS}
+        FROM education 
         WHERE _id = $1 AND user_id = $2
     `;
 };
 
 module.exports = {
-	_createEducationQuery,
-	_getEducationsByUserQuery,
-	_updateEducationQuery,
-	_deleteEducationQuery,
-	_getEducationByIdQuery,
+    _createEducationQuery,
+    _getEducationsByUserQuery,
+    _updateEducationQuery,
+    _deleteEducationQuery,
+    _getEducationByIdQuery,
 };

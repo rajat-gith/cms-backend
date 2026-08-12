@@ -9,9 +9,9 @@ class SkillService {
 			name: row.name,
 			level: row.level,
 			category: row.category,
-			userId: row.user_id,
-			createdAt: row.created_at,
-			updatedAt: row.updated_at,
+			userId: row.userId,
+			createdAt: row.createdAt,
+			updatedAt: row.updatedAt,
 		};
 	}
 

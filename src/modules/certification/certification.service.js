@@ -67,14 +67,19 @@ class CertificationService {
 			skills,
 		} = updates;
 
+		const formattedIssueDate = issueDate ? new Date(issueDate) : null;
+		const formattedExpirationDate = expirationDate
+			? new Date(expirationDate)
+			: null;
+
 		const client = await pool.connect();
 		try {
 			const result = await client.query(queries._updateCertification(), [
 				certId,
 				name,
 				issuingOrganization,
-				issueDate,
-				expirationDate,
+				formattedIssueDate,
+				formattedExpirationDate,
 				isExpired,
 				credentialId,
 				credentialURL,

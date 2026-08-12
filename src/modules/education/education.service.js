@@ -2,6 +2,30 @@ const educationQueries = require("./education.queries");
 const pool = require("../../db/index");
 
 class EducationService {
+	static mapRowToEducation(row) {
+		if (!row) return null;
+		return {
+			_id: row._id,
+			courseName: row.courseName,
+			institute: row.institute,
+			periodOfCourse: {
+				startDate: row.startDate,
+				endDate: row.endDate,
+				isOngoing: row.isOngoing,
+			},
+			degree: row.degree,
+			skills: row.skills,
+			courseworks: row.courseworks,
+			grades: {
+				type: row.gradeType,
+				value: row.gradeValue,
+			},
+			userId: row.userId,
+			createdAt: row.createdAt,
+			updatedAt: row.updatedAt,
+		};
+	}
+
 	static async createEducation(data) {
 		const client = await pool.connect();
 		try {
@@ -36,7 +60,7 @@ class EducationService {
 			const result = await client.query(query, values);
 			await client.query("COMMIT");
 
-			return result.rows[0];
+			return EducationService.mapRowToEducation(result.rows[0]);
 		} catch (error) {
 			await client.query("ROLLBACK");
 			throw error;
@@ -51,26 +75,7 @@ class EducationService {
 			const query = educationQueries._getEducationsByUserQuery();
 			const result = await client.query(query, [userId]);
 
-			return result.rows.map((row) => ({
-				_id: row._id,
-				courseName: row.course_name,
-				institute: row.institute,
-				periodOfCourse: {
-					startDate: row.start_date,
-					endDate: row.end_date,
-					isOngoing: row.is_ongoing,
-				},
-				degree: row.degree,
-				skills: row.skills,
-				courseworks: row.courseworks,
-				grades: {
-					type: row.grade_type,
-					value: row.grade_value,
-				},
-				userId: row.user_id,
-				createdAt: row.created_at,
-				updatedAt: row.updated_at,
-			}));
+			return result.rows.map(EducationService.mapRowToEducation);
 		} finally {
 			client.release();
 		}
@@ -122,27 +127,7 @@ class EducationService {
 
 			await client.query("COMMIT");
 
-			const row = result.rows[0];
-			return {
-				_id: row._id,
-				courseName: row.course_name,
-				institute: row.institute,
-				periodOfCourse: {
-					startDate: row.start_date,
-					endDate: row.end_date,
-					isOngoing: row.is_ongoing,
-				},
-				degree: row.degree,
-				skills: row.skills,
-				courseworks: row.courseworks,
-				grades: {
-					type: row.grade_type,
-					value: row.grade_value,
-				},
-				userId: row.user_id,
-				createdAt: row.created_at,
-				updatedAt: row.updated_at,
-			};
+			return EducationService.mapRowToEducation(result.rows[0]);
 		} catch (error) {
 			await client.query("ROLLBACK");
 			throw error;
@@ -151,20 +136,20 @@ class EducationService {
 		}
 	}
 
-	static async deleteEducation(educationId) {
+	static async deleteEducation(educationId, userId) {
 		const client = await pool.connect();
 		try {
 			await client.query("BEGIN");
 
 			const query = educationQueries._deleteEducationQuery();
-			const result = await client.query(query, [educationId]);
+			const result = await client.query(query, [educationId, userId]);
 
 			if (result.rows.length === 0) {
-				throw new Error("Education not found");
+				throw new Error("Education not found or unauthorized");
 			}
 
 			await client.query("COMMIT");
-			return result.rows[0];
+			return EducationService.mapRowToEducation(result.rows[0]);
 		} catch (error) {
 			await client.query("ROLLBACK");
 			throw error;

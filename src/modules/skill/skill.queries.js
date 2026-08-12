@@ -2,7 +2,14 @@ const _addSkillQuery = () => {
     return `
         INSERT INTO skills (name, level, category, user_id)
         VALUES ($1, $2, $3, $4)
-        RETURNING _id, name, level, category, user_id, created_at, updated_at
+        RETURNING 
+            _id, 
+            name, 
+            level, 
+            category, 
+            user_id AS "userId", 
+            created_at AS "createdAt", 
+            updated_at AS "updatedAt"
     `;
 };
 
@@ -13,9 +20,9 @@ const _getSkillsByUserQuery = () => {
             name, 
             level, 
             category, 
-            user_id, 
-            created_at, 
-            updated_at
+            user_id AS "userId", 
+            created_at AS "createdAt", 
+            updated_at AS "updatedAt"
         FROM 
             skills
         WHERE 
@@ -33,7 +40,14 @@ const _updateSkillQuery = () => {
             category = COALESCE($4, category),
             updated_at = CURRENT_TIMESTAMP
         WHERE _id = $1 AND user_id = $5
-        RETURNING _id, name, level, category, user_id, created_at, updated_at
+        RETURNING 
+            _id, 
+            name, 
+            level, 
+            category, 
+            user_id AS "userId", 
+            created_at AS "createdAt", 
+            updated_at AS "updatedAt"
     `;
 };
 
@@ -47,7 +61,14 @@ const _deleteSkillQuery = () => {
 
 const _getSkillByIdQuery = () => {
     return `
-        SELECT _id, name, level, category, user_id, created_at, updated_at
+        SELECT 
+            _id, 
+            name, 
+            level, 
+            category, 
+            user_id AS "userId", 
+            created_at AS "createdAt", 
+            updated_at AS "updatedAt"
         FROM skills
         WHERE _id = $1
     `;
@@ -55,7 +76,14 @@ const _getSkillByIdQuery = () => {
 
 const _getSkillByIdAndUserQuery = () => {
     return `
-        SELECT _id, name, level, category, user_id, created_at, updated_at
+        SELECT 
+            _id, 
+            name, 
+            level, 
+            category, 
+            user_id AS "userId", 
+            created_at AS "createdAt", 
+            updated_at AS "updatedAt"
         FROM skills
         WHERE _id = $1 AND user_id = $2
     `;
