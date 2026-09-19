@@ -15,6 +15,7 @@ const skillRoutes = require("./modules/skill/skill.routes");
 const publicRoutes = require("./modules/public/public.routes")
 const apiCredentialRoutes = require("./modules/apiCredential/apiCredential.routes");
 const aiCopilotRoutes = require("./modules/aiCopilot/aiCopilot.routes");
+const healthRoutes = require("./modules/health/health.routes");
 
 const app = express();
 
@@ -36,6 +37,7 @@ app.use(
 	})
 );
 
+app.use("/health", healthRoutes);
 app.use("/auth", authRoutes);
 app.use("/user", userRoutes);
 app.use("/education", educationRoutes);
